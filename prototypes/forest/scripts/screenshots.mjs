@@ -11,12 +11,13 @@ export async function captureForest(page, round = 'final') {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   const captures = [];
-  for (const [device, viewport] of Object.entries({ phone: { width: 360, height: 780 }, desktop: { width: 1440, height: 900 } })) {
+  for (const [device, viewport] of Object.entries({ phone: { width: 360, height: 684 }, desktop: { width: 1440, height: 900 } })) {
     await page.setViewportSize(viewport);
     for (const colorScheme of ['dark', 'light']) {
       await page.emulateMedia({ colorScheme, reducedMotion: 'no-preference' });
       await page.goto('http://127.0.0.1:5180', { waitUntil: 'networkidle' });
       await page.evaluate(() => document.fonts.ready);
+      await page.addStyleTag({ content: '.firefly { animation-play-state: paused !important; }' });
       for (const stop of ['entrance', 'mind', 'philosophy', 'ai', 'clearing']) {
         await page.evaluate(stop => {
           const stage = document.querySelector('.stage');
@@ -29,15 +30,17 @@ export async function captureForest(page, round = 'final') {
           window.scrollTo(0, progress * scrollRange);
         }, stop);
         await page.waitForTimeout(180);
+        await page.waitForFunction(() => !document.querySelector('[data-forest-ready="false"]'));
         const file = path.join(folder, `${device}-${colorScheme}-${stop}.png`);
         await page.screenshot({ path: file, animations: 'disabled' });
         captures.push(file);
       }
     }
   }
-  await page.setViewportSize({ width: 360, height: 780 });
+  await page.setViewportSize({ width: 360, height: 684 });
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
   await page.goto('http://127.0.0.1:5180', { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => !document.querySelector('[data-forest-ready="false"]'));
   await page.screenshot({ path: path.join(folder, 'phone-dark-reduced-motion.png'), fullPage: true });
   const reduced = await page.evaluate(() => ({
     documentWidth: document.documentElement.scrollWidth,
@@ -54,7 +57,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   const { chromium } = await import('@playwright/test');
   const browser = await chromium.launch({ headless: true, ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}) });
   try {
-    const page = await browser.newPage();
+    const page = await browser.newPage({ deviceScaleFactor: 3, isMobile: true, hasTouch: true });
     console.log(JSON.stringify(await captureForest(page, process.argv[2] || 'final'), null, 2));
   } finally {
     await browser.close();

@@ -1,8 +1,27 @@
 import './style.css';
 import { drawForest } from './forest';
+import { ForestRenderer } from './forest-renderer';
 
 const landscape = document.querySelector<HTMLDivElement>('#landscape')!;
 landscape.innerHTML = drawForest();
+const forest = new ForestRenderer(landscape);
+
+// A small, static noise texture; no SVG filter repaints as the scene moves.
+const noise = document.createElement('canvas');
+noise.width = noise.height = 160;
+const noiseContext = noise.getContext('2d')!;
+const pixels = noiseContext.createImageData(160, 160);
+let noiseSeed = 71;
+for (let i = 0; i < pixels.data.length; i += 4) {
+  for (let channel = 0; channel < 3; channel++) {
+    noiseSeed = (Math.imul(noiseSeed, 1664525) + 1013904223) | 0;
+    pixels.data[i + channel] = 64 + ((noiseSeed >>> 24) >> 1);
+  }
+  pixels.data[i + 3] = 179;
+}
+noiseContext.putImageData(pixels, 0, 0);
+document.querySelector<HTMLElement>('.grain')!.style.backgroundImage = `url(${noise.toDataURL()})`;
+noise.width = noise.height = 0;
 
 const walk = document.querySelector<HTMLElement>('#walk')!;
 const stage = document.querySelector<HTMLElement>('.stage')!;
@@ -10,7 +29,7 @@ const entrance = document.querySelector<HTMLElement>('.entrance')!;
 const hint = document.querySelector<HTMLElement>('.walk-hint')!;
 const progressBar = document.querySelector<HTMLElement>('.journey-progress')!;
 const waypoints = document.querySelector<HTMLElement>('#waypoints')!;
-const layers = [...document.querySelectorAll<HTMLElement | SVGElement>('[data-speed]')].map(element => ({
+const layers = [...document.querySelectorAll<HTMLElement>('[data-speed]:not(svg)')].map(element => ({
   element, speed: Number(element.dataset.speed),
 }));
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -23,12 +42,14 @@ let scrollRange = 1;
 let frame = 0;
 let previousWidth = 0;
 let previousHeight = 0;
+let previousDpr = 0;
 
 function render() {
   frame = 0;
-  if (reducedMotion.matches) return;
+  if (reducedMotion.matches) { forest.render(0); return; }
   const progress = Math.max(0, Math.min(1, window.scrollY / scrollRange));
   const offset = progress * travel;
+  forest.render(offset);
   for (const { element, speed } of layers) {
     element.style.transform = `translate3d(${-offset * speed}px,0,0)`;
   }
@@ -47,9 +68,10 @@ function queueRender() {
 function measure() {
   const height = stage.clientHeight;
   const width = stage.clientWidth;
-  if (height === previousHeight && width === previousWidth) return;
+  if (height === previousHeight && width === previousWidth && previousDpr === devicePixelRatio) return;
   previousHeight = height;
   previousWidth = width;
+  previousDpr = devicePixelRatio;
   scale = height / 900;
   viewportWidth = width;
   document.documentElement.style.setProperty('--unit', `${scale}px`);
@@ -64,6 +86,7 @@ function measure() {
     stop.style.left = `${Number(stop.dataset.worldX) * scale}px`;
   });
   waypoints.style.width = `${5200 * scale}px`;
+  forest.resize(width, landscape.clientHeight, scale, reducedMotion.matches);
   queueRender();
 }
 
@@ -79,8 +102,10 @@ function motionPreferenceChanged() {
 }
 
 window.addEventListener('scroll', queueRender, { passive: true });
+window.addEventListener('resize', measure);
 new ResizeObserver(measure).observe(stage);
 reducedMotion.addEventListener('change', motionPreferenceChanged);
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => forest.recolor());
 
 function goToStop(stop: HTMLElement) {
   if (reducedMotion.matches) return;

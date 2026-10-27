@@ -54,12 +54,17 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .moon span { position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse at 64% 28%, #91aaa41c 0 10%, transparent 12%), radial-gradient(ellipse at 30% 60%, #738f8519 0 15%, transparent 18%), radial-gradient(ellipse at 55% 75%, #738f8519 0 11%, transparent 16%); }
 .daylight { display: none; }
 .world-layer { position: absolute; top: 0; left: 0; height: 100%; transform-origin: 0 0; will-change: transform; overflow: visible; }
+.geometry-source { visibility: hidden; will-change: auto; }
+.world-layer.raster-layer { opacity: 1; mask-image: none; will-change: auto; overflow: hidden; }
+.raster-layer canvas { position: absolute; top: 0; left: 0; will-change: transform; }
 .hills { opacity: .8; }
 .hill-back { fill: var(--hill-back); }
 .hill-front { fill: var(--hill-front); }
 .wood { fill: var(--wood); }
 .bark-light { stroke: var(--wood-lit); opacity: .38; }
 .bark-line { stroke: var(--bark-line); opacity: .65; }
+.bark-light.outline { fill: var(--wood-lit); stroke: none; }
+.bark-line.outline { fill: var(--bark-line); stroke: none; }
 .leaf-0 { fill: var(--leaf-0); }
 .leaf-1 { fill: var(--leaf-1); }
 .leaf-2 { fill: var(--leaf-2); }
@@ -90,7 +95,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .fireflies { width: 5200px; height: 900px; transform-origin: 0 0; }
 .firefly { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #d7df9b; box-shadow: 0 0 6px 2px #e5ed9c25; animation: firefly var(--duration) var(--delay) ease-in-out infinite; }
 @keyframes firefly { 0%, 100% { opacity: .08; transform: translate3d(0,0,0); } 35% { opacity: .65; } 60% { opacity: .12; transform: translate3d(9px,-13px,0); } }
-.grain { position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: .035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.84' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' filter='url(%23n)' opacity='.7' d='M0 0h160v160H0z'/%3E%3C/svg%3E"); }
+.grain { position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: .035; background-size: 160px 160px; }
 .entrance { position: absolute; z-index: 4; top: 42%; left: 16%; will-change: transform, opacity; }
 h1 { font-size: clamp(21px, 2vw, 27px); font-weight: 400; letter-spacing: .025em; margin: 19px 0 0; line-height: 1.3; }
 .sprig { width: 27px; height: 38px; color: var(--quiet); opacity: .8; }
