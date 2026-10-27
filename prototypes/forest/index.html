@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#10252d" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#dce3d4" media="(prefers-color-scheme: light)" />
+    <meta name="description" content="A quiet walk through the woods. Notes on mind, philosophy, AI and work, by Chinmay Jain." />
+    <title>Chinmay Jain — A walk in the woods</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%2310252d'/%3E%3Cpath d='M11 29Q9 10 29 9Q30 28 11 29ZM11 29L25 14' fill='%23b7c7b2' stroke='%2310252d'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="skip-link" href="#clearing">Skip to the clearing</a>
+    <main id="walk" aria-label="A walk through the forest">
+      <div class="stage">
+        <div id="landscape" aria-hidden="true"></div>
+        <div class="entrance">
+          <svg class="sprig" viewBox="0 0 32 44" fill="none" aria-hidden="true"><path d="M13 41Q17 23 19 4M17 23Q3 24 6 12Q16 13 17 23ZM18 16Q30 16 28 5Q20 6 18 16ZM14 34Q3 34 4 25Q13 26 14 34Z" stroke="currentColor" stroke-width=".85"/></svg>
+          <h1>Chinmay Jain</h1>
+        </div>
+        <div id="waypoints" class="world-layer" data-speed="1">
+          <a class="sign sign-mind" data-world-x="1040" href="https://chinmayjain.me/notes/Mind/"><span class="plank"><span>Mind</span><i aria-hidden="true">↗</i></span></a>
+          <a class="sign sign-philosophy" data-world-x="2060" href="https://chinmayjain.me/notes/Philosophy/"><span class="plank"><span>Philosophy</span><i aria-hidden="true">↗</i></span></a>
+          <a class="sign sign-ai" data-world-x="3100" href="https://chinmayjain.me/notes/AI-and-Work/"><span class="plank"><span>AI and Work</span><i aria-hidden="true">↗</i></span></a>
+          <nav id="clearing" class="clearing" data-world-x="4140" aria-label="In the clearing">
+            <svg class="clearing-mark" viewBox="0 0 52 42" fill="none" aria-hidden="true"><path d="M8 35Q29 28 41 5M24 25Q9 26 11 13Q23 13 24 25ZM31 18Q44 21 47 10Q35 8 31 18Z" stroke="currentColor" stroke-width=".8"/></svg>
+            <p class="clearing-caption">a clearing</p>
+            <div class="clearing-links"><a href="#" data-placeholder>Work</a><a href="https://chinmayjain.me/notes/">Notes</a><a href="#" data-placeholder>Resume</a><a href="https://github.com/chinmayjx">GitHub <span aria-hidden="true">↗</span></a></div>
+            <button class="return-link" type="button">back to the beginning <span aria-hidden="true">↶</span></button>
+          </nav>
+        </div>
+        <div class="grain" aria-hidden="true"></div>
+        <p class="walk-hint"><span class="hint-line" aria-hidden="true"></span>scroll to walk<span aria-hidden="true">↓</span></p>
+        <div class="journey" aria-hidden="true"><span class="journey-track"></span><span class="journey-progress"></span></div>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

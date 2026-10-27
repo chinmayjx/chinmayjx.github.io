@@ -1,0 +1,178 @@
+:root {
+  color-scheme: dark light;
+  font-family: 'Lora', Georgia, serif;
+  font-synthesis: none;
+  --sky-top: #0e222d;
+  --sky-bottom: #3b6266;
+  --sky-glow: #577d7d;
+  --ink: #d7dfcf;
+  --quiet: #a3b8ad;
+  --hill-back: #36565d;
+  --hill-front: #2b4b53;
+  --far-wood: #3a5c61;
+  --far-leaf: #3b5d61;
+  --mid-wood: #23454a;
+  --mid-leaf: #284a4e;
+  --wood: #132e35;
+  --wood-lit: #456164;
+  --bark-line: #0c242c;
+  --leaf-0: #1a3b3e;
+  --leaf-1: #244a49;
+  --leaf-2: #305652;
+  --leaf-3: #1b4042;
+  --birch: #4b6667;
+  --birch-lit: #71817c;
+  --ground-back: #244346;
+  --ground: #142f34;
+  --ground-line: #49605b;
+  --grass: #38534c;
+  --grass-light: #52665a;
+  --near: #0a2028;
+  --near-fern: #112e31;
+  --mist: #96c3b3;
+  --wood-sign: #706b50;
+  --wood-sign-edge: #383c31;
+  --sign-text: #e4ddbd;
+  --unit: 1px;
+  background: var(--near);
+  color: var(--ink);
+}
+* { box-sizing: border-box; }
+html { scrollbar-width: thin; scrollbar-color: #4d6663 #10252d; }
+body { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 7px; border-radius: 2px; }
+.skip-link { position: fixed; top: 18px; left: 18px; z-index: 20; padding: 12px 18px; background: var(--near); transform: translateY(-200%); font-size: 14px; }
+.skip-link:focus { transform: none; }
+#walk { position: relative; height: 600svh; }
+.stage { position: sticky; top: 0; width: 100%; height: 100vh; height: 100svh; overflow: clip; isolation: isolate; }
+#landscape { position: absolute; inset: 0; pointer-events: none; }
+.sky { position: absolute; inset: 0; background: radial-gradient(ellipse at 61% 31%, color-mix(in srgb, var(--sky-glow) 32%, transparent), transparent 49%), linear-gradient(var(--sky-top), var(--sky-bottom) 80%); }
+.stars { position: absolute; inset: 0; height: 100%; width: 100%; fill: #e4ead7; }
+.moon { position: absolute; left: 63%; top: 19%; width: clamp(34px, 4.1vw, 56px); aspect-ratio: 1; border-radius: 50%; background: #e0e5cc; box-shadow: 0 0 24px 5px #dce4ba0d, 0 0 90px 35px #c3ddc511, 0 0 180px 90px #bfd9ce08; }
+.moon span { position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse at 64% 28%, #91aaa41c 0 10%, transparent 12%), radial-gradient(ellipse at 30% 60%, #738f8519 0 15%, transparent 18%), radial-gradient(ellipse at 55% 75%, #738f8519 0 11%, transparent 16%); }
+.daylight { display: none; }
+.world-layer { position: absolute; top: 0; left: 0; height: 100%; transform-origin: 0 0; will-change: transform; overflow: visible; }
+.hills { opacity: .8; }
+.hill-back { fill: var(--hill-back); }
+.hill-front { fill: var(--hill-front); }
+.wood { fill: var(--wood); }
+.bark-light { stroke: var(--wood-lit); opacity: .38; }
+.bark-line { stroke: var(--bark-line); opacity: .65; }
+.leaf-0 { fill: var(--leaf-0); }
+.leaf-1 { fill: var(--leaf-1); }
+.leaf-2 { fill: var(--leaf-2); }
+.leaf-3 { fill: var(--leaf-3); }
+.far-trees { --wood: var(--far-wood); --leaf-0: var(--far-leaf); --leaf-1: var(--far-leaf); --leaf-2: var(--far-leaf); --leaf-3: var(--far-leaf); opacity: .7; mask-image: linear-gradient(#000 40%, #0009 62%, transparent 81%); }
+.far-trees .bark-light, .far-trees .bark-line, .mid-trees .bark-line { display: none; }
+.mid-trees { --wood: var(--mid-wood); --wood-lit: var(--mid-leaf); --leaf-0: var(--mid-leaf); --leaf-1: var(--mid-leaf); --leaf-2: var(--mid-leaf); --leaf-3: var(--mid-leaf); mask-image: linear-gradient(#000 62%, #0009 78%, transparent 88%); }
+.birch { --wood: var(--birch); --wood-lit: var(--birch-lit); }
+.birch-mark { stroke: var(--bark-line); opacity: .7; }
+.mist { position: absolute; top: 59%; height: 25%; left: -20%; width: 140%; background: radial-gradient(ellipse at 50% 55%, color-mix(in srgb, var(--mist) 11%, transparent), transparent 68%); opacity: .8; }
+.ground-back { fill: var(--ground-back); }
+.ground-front { fill: var(--ground); }
+.path-edge, .path-detail { stroke: var(--ground-line); opacity: .3; }
+.path-ribbon { fill: var(--ground-line); opacity: .12; }
+.flower-stem { stroke: var(--grass-light); }
+.flower { fill: var(--ink); opacity: .55; }
+.grass { fill: var(--grass); }
+.grass-1 { fill: var(--grass-light); opacity: .6; }
+.grass-2 { fill: var(--ground); }
+.fern { color: var(--near-fern); --leaf-0: currentColor; }
+.ground-fern { color: var(--grass-light); opacity: .6; }
+.rock { fill: var(--ground); }
+.rock-light { fill: var(--wood-lit); opacity: .5; }
+.foreground { --wood: var(--near); --wood-lit: var(--near-fern); --leaf-0: var(--near); --leaf-1: var(--near); --leaf-2: var(--near); --leaf-3: var(--near); --grass: var(--near); --grass-light: var(--near-fern); --ground: var(--near); }
+.near-ground { fill: var(--near); }
+.seed-stem { color: var(--near); }
+.vignette { position: absolute; inset: 0; background: linear-gradient(180deg, #07151c19, transparent 20%, transparent 79%, #07151c25), radial-gradient(ellipse at 50% 48%, transparent 45%, #06172025); }
+.fireflies { width: 5200px; height: 900px; transform-origin: 0 0; }
+.firefly { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #d7df9b; box-shadow: 0 0 6px 2px #e5ed9c25; animation: firefly var(--duration) var(--delay) ease-in-out infinite; }
+@keyframes firefly { 0%, 100% { opacity: .08; transform: translate3d(0,0,0); } 35% { opacity: .65; } 60% { opacity: .12; transform: translate3d(9px,-13px,0); } }
+.grain { position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: .035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.84' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' filter='url(%23n)' opacity='.7' d='M0 0h160v160H0z'/%3E%3C/svg%3E"); }
+.entrance { position: absolute; z-index: 4; top: 42%; left: 16%; will-change: transform, opacity; }
+h1 { font-size: clamp(21px, 2vw, 27px); font-weight: 400; letter-spacing: .025em; margin: 19px 0 0; line-height: 1.3; }
+.sprig { width: 27px; height: 38px; color: var(--quiet); opacity: .8; }
+#waypoints { z-index: 5; pointer-events: none; }
+.sign { position: absolute; top: calc(713 * var(--unit)); width: calc(146 * var(--unit)); min-width: 125px; height: calc(74 * var(--unit)); transform: translateX(-50%); pointer-events: auto; -webkit-tap-highlight-color: transparent; }
+.sign::after { content: ''; position: absolute; top: calc(25 * var(--unit)); left: 46%; width: calc(8 * var(--unit)); height: calc(68 * var(--unit)); transform: rotate(3deg); background: linear-gradient(90deg, var(--wood-sign-edge) 20%, var(--wood-sign) 22% 49%, var(--wood-sign-edge) 85%); z-index: -1; clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 96%); }
+.plank { display: flex; position: relative; height: calc(48 * var(--unit)); min-height: 43px; align-items: center; justify-content: center; gap: 7px; transform: rotate(-4deg); color: var(--sign-text); background: var(--wood-sign); clip-path: polygon(2% 4%, 97% 0, 100% 13%, 98% 92%, 54% 97%, 1% 100%, 0 69%); box-shadow: inset 0 -3px 0 #0002; transition: filter .2s; }
+.plank::before { content: ''; position: absolute; inset: 7px 4px; opacity: .25; background: linear-gradient(1deg, transparent 11%, var(--wood-sign-edge) 12% 13%, transparent 14% 79%, var(--wood-sign-edge) 80% 81%, transparent 82%); }
+.plank::after { content: ''; position: absolute; width: 2px; height: 2px; top: 49%; left: 7px; border-radius: 50%; background: var(--wood-sign-edge); box-shadow: calc(126 * var(--unit)) 1px var(--wood-sign-edge); }
+.plank > span { font-family: 'Caveat', Georgia, cursive; font-size: clamp(23px, calc(27 * var(--unit)), 30px); font-weight: 400; position: relative; padding-bottom: 3px; }
+.plank i { font-style: normal; font-size: 12px; opacity: .6; }
+.sign-philosophy { width: calc(165 * var(--unit)); min-width: 145px; top: calc(709 * var(--unit)); }
+.sign-philosophy .plank { transform: rotate(3deg); }
+.sign-ai { width: calc(181 * var(--unit)); min-width: 156px; }
+.sign:hover .plank { filter: brightness(1.15); }
+.sign:focus-visible { outline-offset: 9px; }
+.clearing { position: absolute; top: 43%; width: 340px; max-width: 85vw; transform: translateX(-50%); text-align: center; pointer-events: auto; }
+.clearing-mark { width: 39px; color: var(--quiet); }
+.clearing-caption { margin: 12px 0 30px; font-style: italic; font-size: 14px; letter-spacing: .04em; color: var(--quiet); }
+.clearing-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px 25px; font-size: 17px; }
+.clearing-links a { padding: 8px 0; text-underline-offset: 6px; text-decoration-color: color-mix(in srgb, var(--ink) 40%, transparent); }
+.clearing-links a:hover { text-decoration-line: underline; }
+.clearing-links span { font-size: 11px; opacity: .5; }
+.return-link { display: block; margin: 34px auto 0; padding: 6px; background: none; border: 0; color: var(--quiet); font-size: 11px; letter-spacing: .035em; cursor: pointer; opacity: .65; }
+.return-link:hover { opacity: 1; }
+.return-link span { display: inline-block; padding-left: 9px; }
+.walk-hint { position: absolute; z-index: 7; bottom: 37px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 11px; white-space: nowrap; color: var(--quiet); font-size: 10px; letter-spacing: .14em; margin: 0; pointer-events: none; }
+.hint-line { width: 25px; height: 1px; background: currentColor; opacity: .5; }
+.walk-hint > span:last-child { font-size: 14px; letter-spacing: 0; }
+.journey { position: absolute; z-index: 7; right: 35px; bottom: 42px; width: 58px; height: 1px; }
+.journey-track, .journey-progress { position: absolute; inset: 0; background: var(--quiet); }
+.journey-track { opacity: .15; }
+.journey-progress { transform-origin: left; transform: scaleX(0); opacity: .55; }
+@media (max-width: 600px) {
+  .entrance { top: 40%; left: 12%; }
+  h1 { font-size: 22px; margin-top: 17px; }
+  .sprig { width: 24px; height: 34px; }
+  .moon { left: 72%; top: 21%; }
+  .clearing { width: 245px; top: 39%; }
+  .clearing-links { display: grid; grid-template-columns: 1fr 1fr; gap: 17px 32px; font-size: 17px; }
+  .walk-hint { bottom: 30px; }
+  .journey { right: 19px; bottom: 35px; width: 29px; }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --sky-top: #dce3d4; --sky-bottom: #b2c6b0; --sky-glow: #fff4d6;
+    --ink: #344e42; --quiet: #516a56;
+    --hill-back: #bdcdb8; --hill-front: #adbfab;
+    --far-wood: #94ac98; --far-leaf: #a1b8a1;
+    --mid-wood: #7d9680; --mid-leaf: #849e80;
+    --wood: #52654d; --wood-lit: #c6c5a0; --bark-line: #354e3e;
+    --leaf-0: #5d7854; --leaf-1: #708b5b; --leaf-2: #8a9c68; --leaf-3: #658157;
+    --birch: #bfc4a5; --birch-lit: #eee3c3;
+    --ground-back: #89976c; --ground: #657655; --ground-line: #c8c29a;
+    --grass: #8b9d6c; --grass-light: #b3b57a;
+    --near: #304b3e; --near-fern: #3d5e45; --mist: #f6f4ce;
+    --wood-sign: #b1a17b; --wood-sign-edge: #6d7051; --sign-text: #3a4331;
+  }
+  html { scrollbar-color: #879a7d #dce3d4; }
+  .sky { background: radial-gradient(ellipse at 61% 31%, #fff9e6a6, transparent 55%), linear-gradient(var(--sky-top), var(--sky-bottom) 80%); }
+  .moon { background: #fff7da; opacity: .75; box-shadow: 0 0 65px 40px #fff8d653, 0 0 160px 80px #fff8d636; }
+  .moon span, .stars, .fireflies { display: none; }
+  .daylight { display: block; position: absolute; inset: 0; opacity: .28; background: linear-gradient(116deg, transparent 36%, #fffae030 37%, #fffae070 40%, transparent 42%, transparent 49%, #fff7d960 50%, transparent 54%); }
+  .mist { opacity: .95; }
+  .grain { opacity: .05; }
+  .vignette { opacity: .25; }
+  .walk-hint { color: #c4cbb0; }
+  .journey { --quiet: #c4cbb0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #walk { height: auto !important; min-height: 100svh; }
+  .stage { height: auto; min-height: 100svh; position: relative; overflow: clip; padding: 70px 24px 80px; }
+  #landscape { position: fixed; height: 100svh; opacity: .5; }
+  .world-layer { transform: none !important; will-change: auto; }
+  .feature-trees, .foreground, .fireflies, .mist, .grain { display: none; }
+  .entrance { position: relative; top: auto; left: auto; text-align: center; transform: none !important; opacity: 1 !important; }
+  #waypoints { position: relative; inset: auto; height: auto; width: min(420px, 100%) !important; margin: 65px auto 0; display: flex; flex-direction: column; align-items: center; gap: 37px; }
+  .sign { position: relative; left: auto !important; top: auto; transform: none; width: 170px; height: 74px; }
+  .plank { height: 48px; }
+  .sign::after { height: 49px; }
+  .clearing { position: relative; top: auto; left: auto !important; transform: none; margin-top: 38px; }
+  .clearing-links { gap: 17px 32px; }
+  .walk-hint, .journey, .return-link { display: none; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
