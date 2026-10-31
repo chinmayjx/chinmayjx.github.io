@@ -37,66 +37,129 @@ function leaf(x: number, y: number, length: number, angle: number) {
   return `M${n(x)} ${n(y)}q${n(dx * .38 + wx)} ${n(dy * .38 + wy)} ${n(dx)} ${n(dy)}q${n(-dx * .38 - wx * 1.3)} ${n(-dy * .38 - wy * 1.3)} ${n(-dx)} ${n(-dy)}Z`;
 }
 
-function foliage(x: number, y: number, radius: number, rng: Random, fine: boolean, leaves: string[][], monochrome: boolean) {
-  const count = fine ? 16 : 29;
-  for (let i = 0; i < count; i++) {
-    const angle = rng() * PI * 2;
-    const distance = Math.sqrt(rng()) * radius;
-    const lx = x + Math.cos(angle) * distance;
-    const ly = y + Math.sin(angle) * distance * .6;
-    const size = (fine ? 8 : 12) + rng() * (fine ? 12 : 22);
-    const tone = Math.floor(rng() * 4); // Keep the seeded drawing sequence identical.
-    leaves[monochrome ? 0 : tone].push(leaf(lx, ly, size, angle + .3));
+/** Light falls from the moon / sun, up and to the right. */
+const LIGHT = { x: .55, y: -.83 };
+
+/** A scalloped blob: the outline of a mass of leaves seen from a distance. */
+function blob(cx: number, cy: number, rx: number, ry: number, rng: Random, lobes = 9, bulge = .32) {
+  const points: [number, number][] = [];
+  const turn = rng() * PI * 2;
+  for (let i = 0; i < lobes; i++) {
+    const a = turn + (i + (rng() - .5) * .5) / lobes * PI * 2;
+    const r = .82 + rng() * .3;
+    points.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r]);
   }
+  let d = `M${n(points[0][0])} ${n(points[0][1])}`;
+  for (let i = 0; i < lobes; i++) {
+    const [x1, y1] = points[i], [x2, y2] = points[(i + 1) % lobes];
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    // Push each segment's middle outward: every lobe reads as a small clump of leaves.
+    const ox = mx - cx, oy = my - cy, len = Math.hypot(ox, oy) || 1;
+    const push = Math.hypot(x2 - x1, y2 - y1) * (bulge + rng() * .2);
+    d += `Q${n(mx + ox / len * push)} ${n(my + oy / len * push)} ${n(x2)} ${n(y2)}`;
+  }
+  return d + 'Z';
 }
 
-type TreeOptions = { seed: number; x: number; y: number; height: number; width: number; kind?: string; fine?: boolean; lean?: number; depth?: number; monochrome?: boolean; bark?: 'all' | 'light' | 'none' };
-function tree({ seed, x, y, height, width, kind = 'beech', fine = false, lean = 0, depth = 5, monochrome = false, bark = 'all' }: TreeOptions) {
+/** A tapering branch from (x, y) to (ex, ey), bending through (cx, cy), traced as a smooth
+ * outline. `flare` widens the base where it leaves its parent, so a fork grows rather than
+ * meets; `lens` makes a shape that is thin at both ends (bark highlights fade into the joints). */
+function limb(x: number, y: number, cx: number, cy: number, ex: number, ey: number, w0: number, w1: number, flare = 0, lens = false) {
+  const left: string[] = [], right: string[] = [];
+  for (let i = 0; i <= 14; i++) {
+    const t = i / 14, u = 1 - t;
+    const px = u * u * x + 2 * u * t * cx + t * t * ex, py = u * u * y + 2 * u * t * cy + t * t * ey;
+    const dx = u * (cx - x) + t * (ex - cx), dy = u * (cy - y) + t * (ey - cy);
+    const len = Math.hypot(dx, dy) || 1;
+    const w = lens ? w0 * Math.sin(PI * t) : w0 + (w1 - w0) * t + flare * w0 * Math.max(0, 1 - t / .22) ** 2;
+    left.push(`${n(px - dy / len * w / 2)} ${n(py + dx / len * w / 2)}`);
+    right.push(`${n(px + dy / len * w / 2)} ${n(py - dx / len * w / 2)}`);
+  }
+  return `M${left.join('L')}L${right.reverse().join('L')}Z`;
+}
+
+/** A round pad where a branch forks, so the joint has no corners. */
+function disc(x: number, y: number, r: number) {
+  const k = r * .5523;
+  return `M${n(x - r)} ${n(y)}C${n(x - r)} ${n(y - k)} ${n(x - k)} ${n(y - r)} ${n(x)} ${n(y - r)}C${n(x + k)} ${n(y - r)} ${n(x + r)} ${n(y - k)} ${n(x + r)} ${n(y)}C${n(x + r)} ${n(y + k)} ${n(x + k)} ${n(y + r)} ${n(x)} ${n(y + r)}C${n(x - k)} ${n(y + r)} ${n(x - r)} ${n(y + k)} ${n(x - r)} ${n(y)}Z`;
+}
+
+type TreeOptions = { seed: number; x: number; y: number; height: number; width: number; kind?: string; fine?: boolean; lean?: number; depth?: number; monochrome?: boolean; bark?: 'all' | 'light' | 'none'; canopy?: boolean };
+/**
+ * A tree whose canopy is a few solid masses, not loose leaves:
+ * - each branch tip ends in a clump: a scalloped mass in three values (shadow, mid, lit)
+ *   shifted toward the light, so it reads as a rounded volume;
+ * - bigger masses sit behind the clumps, so the canopy has a body;
+ * - twigs run into every clump, and some clumps pass behind the branches.
+ * Distant trees drop to two values (mid layer) or one (far layer, close silhouettes).
+ */
+function tree({ seed, x, y, height, width, kind = 'beech', fine = false, lean = 0, depth = 5, monochrome = false, bark = 'all', canopy = true }: TreeOptions) {
+  const detail = !monochrome ? 'full' : bark === 'light' ? 'simple' : 'silhouette';
   const rng = random(seed);
-  const wood: string[] = [], leaves: string[][] = [[], [], [], []], highlights: string[] = [], lines: string[] = [];
+  const wood: string[] = [], joints: string[] = [], twigs: string[] = [], highlights: string[] = [];
+  const clumps: { x: number; y: number; r: number; depth: number }[] = [], bodies: { x: number; y: number; r: number }[] = [];
+  const spread = kind === 'ash' ? .55 : kind === 'birch' ? .34 : .48;
   function branch(bx: number, by: number, length: number, angle: number, thickness: number, level: number) {
-    const endX = bx + Math.sin(angle) * length;
-    const endY = by - Math.cos(angle) * length;
-    const bend = (rng() - .5) * length * .36;
-    const cx = bx + (endX - bx) * .42 + Math.cos(angle) * bend;
-    const cy = by + (endY - by) * .42 + Math.sin(angle) * bend;
-    const tx = Math.cos(angle) * thickness / 2;
-    const ty = Math.sin(angle) * thickness / 2;
-    const ex = tx * .54, ey = ty * .54;
-    wood.push(`M${n(bx - tx)} ${n(by - ty)}Q${n(cx - tx * .8)} ${n(cy - ty * .8)} ${n(endX - ex)} ${n(endY - ey)}L${n(endX + ex)} ${n(endY + ey)}Q${n(cx + tx * .8)} ${n(cy + ty * .8)} ${n(bx + tx)} ${n(by + ty)}Z`);
-    if (thickness > 7 && bark !== 'none') {
-      highlights.push(strokeOutline(bx - tx * .55, by - ty * .55, cx - tx * .4, cy - ty * .4, endX - ex * .45, endY - ey * .45, thickness * .11));
-      if (bark === 'all') lines.push(strokeOutline(bx + tx * .25, by - length * .05, cx + tx * .6, cy, endX + ex * .7, endY + length * .13, thickness * .032 + .3));
-    }
+    const ex = bx + Math.sin(angle) * length, ey = by - Math.cos(angle) * length;
+    const bend = (rng() - .5) * length * .3;
+    const cx = bx + (ex - bx) * .45 + Math.cos(angle) * bend, cy = by + (ey - by) * .45 + Math.sin(angle) * bend;
+    const end = level <= 1 ? thickness * .35 : thickness * .62;
+    wood.push(limb(bx, by, cx, cy, ex, ey, thickness, end, level < depth ? .45 : 0));
+    if (level > 0) joints.push(disc(ex, ey, end * .56));
+    if (thickness > 9 && bark !== 'none') highlights.push(limb(bx + thickness * .14, by, cx + thickness * .14, cy, ex + end * .14, ey, thickness * .16, 0, 0, true));
+    if (level === 2) bodies.push({ x: ex, y: ey - length * .35, r: length * .7 + 24 });
     if (level <= 1) {
-      foliage(endX, endY, length * .48 + 17, rng, fine, leaves, monochrome);
+      const r = length * .7 + (fine ? 18 : 30);
+      clumps.push({ x: ex + Math.sin(angle) * r * .35, y: ey - r * .3, r, depth: rng() });
+      // Twigs fan out from the tip into the clump, so the leaves have something to hang from.
+      for (let i = 0; i < 3; i++) {
+        const a = angle * .5 + (i - 1) * .6 + (rng() - .5) * .3, l = r * (.3 + rng() * .25);
+        twigs.push(limb(ex, ey, ex + Math.sin(a) * l * .5, ey - Math.cos(a) * l * .5, ex + Math.sin(a) * l, ey - Math.cos(a) * l, Math.max(1.2, end * .8), .6));
+      }
       if (!level) return;
     }
-    const spread = kind === 'ash' ? .55 : kind === 'birch' ? .34 : .48;
-    const leftLength = length * (.57 + rng() * .17);
-    const rightLength = length * (.58 + rng() * .19);
-    branch(endX, endY, leftLength, angle - spread * (.65 + rng() * .9), thickness * .56, level - 1);
-    branch(endX, endY, rightLength, angle + spread * (.65 + rng() * .9), thickness * .62, level - 1);
-    if (level >= 3) {
+    const left = length * (.62 + rng() * .14), right = length * (.64 + rng() * .16);
+    const leftAngle = angle - spread * (.6 + rng() * .8);
+    branch(ex, ey, left, leftAngle, thickness * .6, level - 1);
+    const rightAngle = angle + spread * (.6 + rng() * .8);
+    branch(ex, ey, right, rightAngle, thickness * .66, level - 1);
+    // Fill the crotch with a curved web, so the fork is a U that grows apart, not a cut V.
+    const reach = end * 1.4, dip = end * .45;
+    joints.push(`M${n(ex)} ${n(ey)}L${n(ex + Math.sin(leftAngle) * reach)} ${n(ey - Math.cos(leftAngle) * reach)}Q${n(ex + Math.sin(angle) * dip)} ${n(ey - Math.cos(angle) * dip)} ${n(ex + Math.sin(rightAngle) * reach)} ${n(ey - Math.cos(rightAngle) * reach)}Z`);
+    if (level >= 3 && rng() > .3) {
       const side = rng() > .5 ? 1 : -1;
-      branch(bx + (endX - bx) * .68, by + (endY - by) * .68, length * .55, angle + side * (.7 + rng() * .25), thickness * .38, level - 2);
+      branch(bx + (ex - bx) * .6, by + (ey - by) * .6, length * .58, angle + side * (.8 + rng() * .3), thickness * .4, level - 2);
     }
   }
   branch(x, y, height * .37, lean, width, depth);
   const roots = depth < 5 ? '' : `M${n(x - width * .46)} ${y - 24}Q${n(x - width * .55)} ${y - 4} ${n(x - width * 1.65)} ${y + 8}Q${n(x - width * .9)} ${y + 6} ${n(x - width * .45)} ${y + 3}L${n(x - width * .6)} ${y + 11}Q${n(x - width * .06)} ${y + 3} ${n(x + width * .17)} ${y + 4}Q${n(x + width * .9)} ${y + 14} ${n(x + width * 1.8)} ${y + 11}Q${n(x + width * .8)} ${y + 1} ${n(x + width * .5)} ${y - 24}Z`;
-  let detail = '';
+  let detailMarks = '';
   if (kind === 'birch') {
     for (let i = 0; i < 19; i++) {
       const h = rng() * height * .34;
       const wx = x + Math.sin(lean) * h - width * .37;
-      detail += `<path class="birch-mark" d="M${n(wx)} ${n(y - h)}l${n(width * (.15 + rng() * .42))} -1.5" stroke-width="${n(1 + rng() * 3)}"/>`;
+      detailMarks += `<path class="birch-mark" d="M${n(wx)} ${n(y - h)}l${n(width * (.15 + rng() * .42))} -1.5" stroke-width="${n(1 + rng() * 3)}"/>`;
     }
-  } else if (bark === 'all') {
-    detail += `<path class="bark-line" d="M${n(x - 6)} ${y - 92}q-15 -20 -1 -34q14 18 1 34Zm-1 -7q-6 -11 0 -18" fill="none" stroke-width="1.3"/>`;
   }
+
+  const body: string[] = [];
+  const front: string[][] = [[], [], []], back: string[][] = [[], [], []]; // shadow, mid, lit
+  if (!canopy) { bodies.length = 0; clumps.length = 0; twigs.length = 0; }
+  for (const mass of bodies) body.push(blob(mass.x, mass.y, mass.r, mass.r * .72, rng, 11, .38));
+  for (const clump of clumps) {
+    const { x: cx, y: cy, r } = clump;
+    const into = clump.depth < .3 ? back : front;
+    const ry = r * .66;
+    into[0].push(blob(cx, cy, r, ry, rng));
+    if (detail === 'silhouette') continue;
+    into[1].push(blob(cx + LIGHT.x * r * .2, cy + LIGHT.y * ry * .26, r * .74, ry * .66, rng, 8));
+    if (detail === 'simple') continue;
+    into[2].push(blob(cx + LIGHT.x * r * .42, cy + LIGHT.y * ry * .5, r * .44, ry * .34, rng, 7, .4));
+  }
+  const tones = (set: string[][], prefix: string) => set.map((d, i) => path(`${prefix}-${i}`, d.join(''))).join('');
   // Roots wind in the opposite direction to branches. Keep their paint separate
   // so nonzero filling cannot punch a hole where trunk and roots overlap.
-  return `<g class="tree ${kind}">${path('wood', roots)}${path('wood', wood.join(''))}${path('bark-light outline', highlights.join(''))}${path('bark-line outline', lines.join(''))}${detail}${leaves.map((shapes, tone) => path(`leaf leaf-${tone}`, shapes.join(''))).join('')}</g>`;
+  return `<g class="tree ${kind}">${tones(back, 'back')}${path('canopy-body', body.join(''))}${path('wood', roots)}${path('wood', wood.join(''))}${path('wood', joints.join(''))}${path('bark-light outline', highlights.join(''))}${detailMarks}${path('twig', twigs.join(''))}${tones(front, 'canopy')}</g>`;
 }
 
 function fern(x: number, y: number, size: number, rng: Random, shade = '') {
@@ -201,10 +264,11 @@ export function drawForest(): string {
   close += grasses(6500, 78, 886, 210, true);
   const fernRng = random(28);
   for (const x of [48, 160, 680, 1200, 1310, 1680, 2200, 2370, 2740, 3270, 3480, 3890, 4440, 4610, 4890, 5290, 5630, 6110]) close += fern(x, 901, 58 + fernRng() * 62, fernRng);
-  // A few close trunks frame the walk without obscuring a signpost.
-  close += tree({ seed: 76, x: -165, y: 922, height: 1380, width: 98, lean: .08, depth: 4, monochrome: true });
-  close += tree({ seed: 91, x: 2180, y: 922, height: 1350, width: 71, lean: -.07, depth: 4, monochrome: true });
-  close += tree({ seed: 121, x: 5800, y: 922, height: 1350, width: 85, lean: .05, depth: 4, monochrome: true });
+  // A few close trunks frame the walk without obscuring a signpost; their crowns are
+  // above the view, so they stay bare rather than hang a dark mass over the scene.
+  close += tree({ canopy: false, seed: 76, x: -165, y: 922, height: 1380, width: 98, lean: .08, depth: 4, monochrome: true });
+  close += tree({ canopy: false, seed: 91, x: 2180, y: 922, height: 1350, width: 71, lean: -.07, depth: 4, monochrome: true });
+  close += tree({ canopy: false, seed: 121, x: 5800, y: 922, height: 1350, width: 85, lean: .05, depth: 4, monochrome: true });
   const foreground = layer('foreground', 1.22, 6500, close);
   let flies = '';
   const flyRng = random(12);

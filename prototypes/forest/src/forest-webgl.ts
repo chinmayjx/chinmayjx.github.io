@@ -204,11 +204,18 @@ export class WebGLForest {
     this.canvas.setAttribute('aria-hidden', 'true');
     // Pixi's default context leaves the WebGL depth attachment enabled. This
     // strictly 2D renderer needs only colour and stencil, never a depth buffer.
+    // failIfMajorPerformanceCaveat refuses software WebGL (e.g. SwiftShader when the GPU is
+    // blocklisted): it draws the forest at a few fps, where the canvas tiles hold 60.
     const attributes: WebGLContextAttributes = { alpha: true, antialias: true,
-      depth: false, stencil: true, premultipliedAlpha: true, powerPreference: 'low-power' };
+      depth: false, stencil: true, premultipliedAlpha: true, powerPreference: 'low-power',
+      failIfMajorPerformanceCaveat: true };
     const context = this.canvas.getContext('webgl2', attributes)
       || this.canvas.getContext('webgl', attributes);
     if (!context) throw new Error('WebGL unavailable');
+    // Some browsers still hand out software WebGL; their renderer's name gives it away.
+    const info = context.getExtension('WEBGL_debug_renderer_info');
+    const gpu = info ? String(context.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+    if (/swiftshader|llvmpipe|softpipe|software|basic render/i.test(gpu)) throw new Error(`Software WebGL (${gpu})`);
     await this.renderer.init({ canvas: this.canvas, context: context as WebGL2RenderingContext, width: 1, height: 1,
       resolution: devicePixelRatio || 1, autoDensity: true, antialias: true,
       backgroundAlpha: 0, manageImports: false,
