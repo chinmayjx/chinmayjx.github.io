@@ -1,10 +1,25 @@
 import './style.css';
 import { drawForest } from './forest';
-import { ForestRenderer } from './forest-renderer';
+import { ForestEngine } from './forest-engine';
 
 const landscape = document.querySelector<HTMLDivElement>('#landscape')!;
 landscape.innerHTML = drawForest();
-const forest = new ForestRenderer(landscape);
+const forest = new ForestEngine(landscape, queueRender);
+
+// The loading veil (index.html) lifts once the first forest frame is drawn, or after
+// a few seconds whatever happens, so a slow or failing renderer never hides the page.
+// It also waits for the fonts, so the signposts don't change typeface in view.
+function lift() { document.documentElement.classList.add('forest-ready'); }
+const drawn = new Promise<void>(resolve => new MutationObserver((_, observer) => {
+  if (landscape.dataset.forestReady === 'true') { observer.disconnect(); resolve(); }
+}).observe(landscape, { attributes: true, attributeFilter: ['data-forest-ready'] }));
+const fontSheet = document.querySelector<HTMLLinkElement>('link[rel=stylesheet][href*="fonts.googleapis"]');
+const fonts = new Promise(resolve => {
+  if (!fontSheet || fontSheet.dataset.loaded !== undefined) resolve(null);
+  else { fontSheet.addEventListener('load', resolve); fontSheet.addEventListener('error', resolve); }
+}).then(() => Promise.all(['500 1em Caveat', '1em Lora'].map(font => document.fonts.load(font))));
+Promise.all([drawn, fonts]).then(lift);
+setTimeout(lift, 6000);
 
 // A small, static noise texture; no SVG filter repaints as the scene moves.
 const noise = document.createElement('canvas');
@@ -43,6 +58,7 @@ let frame = 0;
 let previousWidth = 0;
 let previousHeight = 0;
 let previousDpr = 0;
+let previousZoom = 0;
 
 function render() {
   frame = 0;
@@ -68,10 +84,11 @@ function queueRender() {
 function measure() {
   const height = stage.clientHeight;
   const width = stage.clientWidth;
-  if (height === previousHeight && width === previousWidth && previousDpr === devicePixelRatio) return;
+  if (height === previousHeight && width === previousWidth && previousDpr === devicePixelRatio && previousZoom === (visualViewport?.scale || 1)) return;
   previousHeight = height;
   previousWidth = width;
   previousDpr = devicePixelRatio;
+  previousZoom = visualViewport?.scale || 1;
   scale = height / 900;
   viewportWidth = width;
   document.documentElement.style.setProperty('--unit', `${scale}px`);
@@ -103,6 +120,14 @@ function motionPreferenceChanged() {
 
 window.addEventListener('scroll', queueRender, { passive: true });
 window.addEventListener('resize', measure);
+visualViewport?.addEventListener('resize', measure);
+visualViewport?.addEventListener('scroll', queueRender);
+document.addEventListener('visibilitychange', queueRender);
+// A monitor move can change DPR without changing the CSS viewport.
+function watchDensity() {
+  matchMedia(`(resolution: ${devicePixelRatio}dppx)`).addEventListener('change', () => { measure(); watchDensity(); }, { once: true });
+}
+watchDensity();
 new ResizeObserver(measure).observe(stage);
 reducedMotion.addEventListener('change', motionPreferenceChanged);
 window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => forest.recolor());

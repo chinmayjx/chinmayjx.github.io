@@ -54,6 +54,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .moon span { position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse at 64% 28%, #91aaa41c 0 10%, transparent 12%), radial-gradient(ellipse at 30% 60%, #738f8519 0 15%, transparent 18%), radial-gradient(ellipse at 55% 75%, #738f8519 0 11%, transparent 16%); }
 .daylight { display: none; }
 .world-layer { position: absolute; top: 0; left: 0; height: 100%; transform-origin: 0 0; will-change: transform; overflow: visible; }
+.forest-webgl { position: absolute; inset: 0; pointer-events: none; }
+.webgl-active > .mist, .webgl-active > .fireflies { visibility: hidden; }
 .geometry-source { visibility: hidden; will-change: auto; }
 .world-layer.raster-layer { opacity: 1; mask-image: none; will-change: auto; overflow: hidden; }
 .raster-layer canvas { position: absolute; top: 0; left: 0; will-change: transform; }
