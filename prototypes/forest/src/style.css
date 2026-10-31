@@ -201,3 +201,4 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .theme-toggle svg { width: 18px; height: 18px; }
 .theme-toggle .sun, [data-theme='light'] .theme-toggle .moon-icon { display: none; }
 [data-theme='light'] .theme-toggle .sun { display: block; }
+.fps-overlay { position: fixed; z-index: 40; left: 10px; bottom: 10px; margin: 0; padding: 8px 10px; border-radius: 8px; background: #000b; color: #cfe8d0; font: 11px/1.45 ui-monospace, Menlo, monospace; pointer-events: auto; }

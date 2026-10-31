@@ -1,6 +1,7 @@
 import './style.css';
 import { drawForest } from './forest';
 import { ForestEngine } from './forest-engine';
+import { startFpsOverlay } from './fps';
 
 const landscape = document.querySelector<HTMLDivElement>('#landscape')!;
 landscape.innerHTML = drawForest();
@@ -129,6 +130,7 @@ function watchDensity() {
 }
 watchDensity();
 new ResizeObserver(measure).observe(stage);
+if (new URLSearchParams(location.search).has('fps')) startFpsOverlay(landscape);
 reducedMotion.addEventListener('change', motionPreferenceChanged);
 // Day / night: the toggle's choice is remembered; until then the page follows the system.
 const toggle = document.querySelector<HTMLButtonElement>('.theme-toggle')!;

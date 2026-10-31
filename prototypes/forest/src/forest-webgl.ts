@@ -437,6 +437,7 @@ export class WebGLForest {
     const resolution = (devicePixelRatio || 1) * zoom;
     if (resolution !== this.resolution || viewWidth !== this.viewWidth || viewHeight !== this.viewHeight) {
       this.renderer.resize(viewWidth, viewHeight, resolution);
+      this.landscape.dataset.canvasResizes = `${Number(this.landscape.dataset.canvasResizes || 0) + 1}`;
       this.resolution = resolution; this.viewWidth = viewWidth; this.viewHeight = viewHeight;
     }
     this.canvas.style.left = `${viewX}px`; this.canvas.style.top = `${viewY}px`;
