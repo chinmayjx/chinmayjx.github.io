@@ -130,7 +130,25 @@ function watchDensity() {
 watchDensity();
 new ResizeObserver(measure).observe(stage);
 reducedMotion.addEventListener('change', motionPreferenceChanged);
-window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => forest.recolor());
+// Day / night: the toggle's choice is remembered; until then the page follows the system.
+const toggle = document.querySelector<HTMLButtonElement>('.theme-toggle')!;
+function applyTheme(theme: 'light' | 'dark') {
+  document.documentElement.dataset.theme = theme;
+  document.querySelector<HTMLMetaElement>('meta[name=theme-color]')!.content = theme === 'light' ? '#dce3d4' : '#10252d';
+  toggle.setAttribute('aria-label', theme === 'light' ? 'Switch to night' : 'Switch to day');
+  forest.recolor();
+}
+applyTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+toggle.addEventListener('click', () => {
+  const theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  try { localStorage.setItem('theme', theme); } catch {}
+  applyTheme(theme);
+});
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', event => {
+  let saved = null;
+  try { saved = localStorage.getItem('theme'); } catch {}
+  if (!saved) applyTheme(event.matches ? 'light' : 'dark');
+});
 
 function goToStop(stop: HTMLElement) {
   if (reducedMotion.matches) return;

@@ -380,7 +380,7 @@ export class WebGLForest {
     if (this.mist) {
       const css = getComputedStyle(document.documentElement);
       const c = new Color(css.getPropertyValue('--mist').trim()).toArray();
-      this.mist.shader!.resources.forest.uniforms.uMist.set([c[0], c[1], c[2], .11 * (matchMedia('(prefers-color-scheme: light)').matches ? .95 : .8)]);
+      this.mist.shader!.resources.forest.uniforms.uMist.set([c[0], c[1], c[2], .11 * (document.documentElement.dataset.theme === 'light' ? .95 : .8)]);
     }
     if (this.width) this.render(this.offset);
   }
@@ -445,7 +445,7 @@ export class WebGLForest {
     // A fast scroll can outrun the background slices: never show a gap.
     if (this.pending.length) this.compilePending(this.pending.filter(slot => this.distance(slot, this.offset, this.width, this.height, this.unit) === 0));
     const flies = this.flies?.update(this.offset, viewX, viewY, viewWidth, viewHeight, resolution,
-      !this.reduced && !matchMedia('(prefers-color-scheme: light)').matches);
+      !this.reduced && document.documentElement.dataset.theme !== 'light');
     let calls = (this.mist?.visible ? 1 : 0) + (flies?.count || 0), triangles = calls * 2;
     for (const layer of this.layers) {
       layer.container.visible = !this.reduced || !layer.source.matches('.feature-trees, .foreground');

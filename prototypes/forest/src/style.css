@@ -53,8 +53,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 #landscape { position: absolute; inset: 0; pointer-events: none; }
 .sky { position: absolute; inset: 0; background: radial-gradient(ellipse at 61% 31%, color-mix(in srgb, var(--sky-glow) 32%, transparent), transparent 49%), linear-gradient(var(--sky-top), var(--sky-bottom) 80%); }
 .stars { position: absolute; inset: 0; height: 100%; width: 100%; fill: #e4ead7; }
-.moon { position: absolute; left: 63%; top: 19%; width: clamp(34px, 4.1vw, 56px); aspect-ratio: 1; border-radius: 50%; background: #e0e5cc; box-shadow: 0 0 24px 5px #dce4ba0d, 0 0 90px 35px #c3ddc511, 0 0 180px 90px #bfd9ce08; }
-.moon span { position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse at 64% 28%, #91aaa41c 0 10%, transparent 12%), radial-gradient(ellipse at 30% 60%, #738f8519 0 15%, transparent 18%), radial-gradient(ellipse at 55% 75%, #738f8519 0 11%, transparent 16%); }
 .daylight { display: none; }
 .world-layer { position: absolute; top: 0; left: 0; height: 100%; transform-origin: 0 0; will-change: transform; overflow: visible; }
 .forest-webgl { position: absolute; inset: 0; pointer-events: none; }
@@ -78,6 +76,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .canopy-0 { fill: var(--canopy-0); } .canopy-1 { fill: var(--canopy-1); } .canopy-2 { fill: var(--canopy-2); }
 .back-0 { fill: var(--back-0); } .back-1 { fill: var(--back-1); } .back-2 { fill: var(--back-2); }
 .twig { fill: var(--wood); }
+.tree-mound { fill: var(--ground-back); }
 /* Distant layers: one value (far) or two (mid), so depth reads through simplification. */
 .far-trees { --canopy-body: var(--far-leaf); --canopy-0: var(--far-leaf); --back-0: var(--far-leaf); }
 .mid-trees { --canopy-body: var(--mid-leaf); --canopy-0: var(--mid-leaf); --back-0: var(--mid-leaf); --canopy-1: var(--mid-leaf-lit); --back-1: var(--mid-leaf-lit); }
@@ -109,7 +108,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-o
 .firefly { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #d7df9b; box-shadow: 0 0 6px 2px #e5ed9c25; animation: firefly var(--duration) var(--delay) ease-in-out infinite; }
 @keyframes firefly { 0%, 100% { opacity: .08; transform: translate3d(0,0,0); } 35% { opacity: .65; } 60% { opacity: .12; transform: translate3d(9px,-13px,0); } }
 .grain { position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: .035; background-size: 160px 160px; }
-.entrance { position: absolute; z-index: 4; top: 42%; left: 16%; will-change: transform, opacity; }
+.entrance { position: absolute; z-index: 4; top: 61%; left: 16%; will-change: transform, opacity; }
 h1 { font-size: clamp(21px, 2vw, 27px); font-weight: 400; letter-spacing: .025em; margin: 19px 0 0; line-height: 1.3; }
 .sprig { width: 27px; height: 38px; color: var(--quiet); opacity: .8; }
 #waypoints { z-index: 5; pointer-events: none; }
@@ -143,44 +142,41 @@ h1 { font-size: clamp(21px, 2vw, 27px); font-weight: 400; letter-spacing: .025em
 .journey-track { opacity: .15; }
 .journey-progress { transform-origin: left; transform: scaleX(0); opacity: .55; }
 @media (max-width: 600px) {
-  .entrance { top: 40%; left: 12%; }
+  .entrance { top: 58%; left: 12%; }
   h1 { font-size: 22px; margin-top: 17px; }
   .sprig { width: 24px; height: 34px; }
-  .moon { left: 72%; top: 21%; }
   .clearing { width: 245px; top: 39%; }
   .clearing-links { display: grid; grid-template-columns: 1fr 1fr; gap: 17px 32px; font-size: 17px; }
   .walk-hint { bottom: 30px; }
   .journey { right: 19px; bottom: 35px; width: 29px; }
 }
-@media (prefers-color-scheme: light) {
-  :root {
-    --sky-top: #dce3d4; --sky-bottom: #b2c6b0; --sky-glow: #fff4d6;
-    --ink: #344e42; --quiet: #516a56;
-    --hill-back: #bdcdb8; --hill-front: #adbfab;
-    --far-wood: #94ac98; --far-leaf: #a1b8a1;
-    --mid-wood: #7d9680; --mid-leaf: #849e80;
-    --wood: #52654d; --wood-lit: #c6c5a0; --bark-line: #354e3e;
-    --leaf-0: #5d7854; --leaf-1: #708b5b; --leaf-2: #8a9c68; --leaf-3: #658157;
-    --canopy-body: #3e5a3a; --canopy-0: #4d6a45; --canopy-1: #66844f; --canopy-2: #8aa15f;
-    --back-0: #4a6542; --back-1: #577550; --back-2: #6a8758;
-    --mid-leaf-lit: #93ab8c;
-    --birch: #bfc4a5; --birch-lit: #eee3c3;
-    --ground-back: #89976c; --ground: #657655; --ground-line: #c8c29a;
-    --grass: #8b9d6c; --grass-light: #b3b57a;
-    --near: #304b3e; --near-fern: #3d5e45; --mist: #f6f4ce;
-    --wood-sign: #b1a17b; --wood-sign-edge: #6d7051; --sign-text: #3a4331;
-  }
-  html { scrollbar-color: #879a7d #dce3d4; }
-  .sky { background: radial-gradient(ellipse at 61% 31%, #fff9e6a6, transparent 55%), linear-gradient(var(--sky-top), var(--sky-bottom) 80%); }
-  .moon { background: #fff7da; opacity: .75; box-shadow: 0 0 65px 40px #fff8d653, 0 0 160px 80px #fff8d636; }
-  .moon span, .stars, .fireflies { display: none; }
-  .daylight { display: block; position: absolute; inset: 0; opacity: .28; background: linear-gradient(116deg, transparent 36%, #fffae030 37%, #fffae070 40%, transparent 42%, transparent 49%, #fff7d960 50%, transparent 54%); }
-  .mist { opacity: .95; }
-  .grain { opacity: .05; }
-  .vignette { opacity: .25; }
-  .walk-hint { color: #c4cbb0; }
-  .journey { --quiet: #c4cbb0; }
+/* Day theme: set on <html> from the toggle or, until it is used, the system setting. */
+:root[data-theme='light'] {
+  --sky-top: #dce3d4; --sky-bottom: #b2c6b0; --sky-glow: #fff4d6;
+  --ink: #344e42; --quiet: #516a56;
+  --hill-back: #bdcdb8; --hill-front: #adbfab;
+  --far-wood: #94ac98; --far-leaf: #a1b8a1;
+  --mid-wood: #7d9680; --mid-leaf: #849e80;
+  --wood: #52654d; --wood-lit: #c6c5a0; --bark-line: #354e3e;
+  --leaf-0: #5d7854; --leaf-1: #708b5b; --leaf-2: #8a9c68; --leaf-3: #658157;
+  --canopy-body: #3e5a3a; --canopy-0: #4d6a45; --canopy-1: #66844f; --canopy-2: #8aa15f;
+  --back-0: #4a6542; --back-1: #577550; --back-2: #6a8758;
+  --mid-leaf-lit: #93ab8c;
+  --birch: #bfc4a5; --birch-lit: #eee3c3;
+  --ground-back: #89976c; --ground: #657655; --ground-line: #c8c29a;
+  --grass: #8b9d6c; --grass-light: #b3b57a;
+  --near: #304b3e; --near-fern: #3d5e45; --mist: #f6f4ce;
+  --wood-sign: #b1a17b; --wood-sign-edge: #6d7051; --sign-text: #3a4331;
 }
+html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
+[data-theme='light'] .sky { background: radial-gradient(ellipse at 61% 31%, #fff9e6a6, transparent 55%), linear-gradient(var(--sky-top), var(--sky-bottom) 80%); }
+[data-theme='light'] .stars, [data-theme='light'] .fireflies { display: none; }
+[data-theme='light'] .daylight { display: block; position: absolute; inset: 0; opacity: .28; background: linear-gradient(116deg, transparent 36%, #fffae030 37%, #fffae070 40%, transparent 42%, transparent 49%, #fff7d960 50%, transparent 54%); }
+[data-theme='light'] .mist { opacity: .95; }
+[data-theme='light'] .grain { opacity: .05; }
+[data-theme='light'] .vignette { opacity: .25; }
+[data-theme='light'] .walk-hint { color: #c4cbb0; }
+[data-theme='light'] .journey { --quiet: #c4cbb0; }
 @media (prefers-reduced-motion: reduce) {
   #walk { height: auto !important; min-height: 100svh; }
   .stage { height: auto; min-height: 100svh; position: relative; overflow: clip; padding: 70px 24px 80px; }
@@ -197,3 +193,11 @@ h1 { font-size: clamp(21px, 2vw, 27px); font-weight: 400; letter-spacing: .025em
   .walk-hint, .journey, .return-link { display: none; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Theme toggle: a UI control, not part of the scenery. */
+.theme-toggle { position: fixed; z-index: 30; top: 16px; right: 16px; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent); background: color-mix(in srgb, var(--sky-top) 55%, transparent); color: var(--ink); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); cursor: pointer; transition: background .2s, transform .2s; }
+.theme-toggle:hover { background: color-mix(in srgb, var(--sky-top) 80%, transparent); }
+.theme-toggle:active { transform: scale(.94); }
+.theme-toggle svg { width: 18px; height: 18px; }
+.theme-toggle .sun, [data-theme='light'] .theme-toggle .moon-icon { display: none; }
+[data-theme='light'] .theme-toggle .sun { display: block; }
