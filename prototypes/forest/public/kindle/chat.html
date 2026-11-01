@@ -66,23 +66,21 @@ var LINE = 32, BOTTOM = 128; // reply strip + bar
 var page = document.getElementById('page');
 var flow = document.getElementById('flow');
 var pos = document.getElementById('pos');
-var cur = 0, total = 1, h = 0;
+var cur = 0, total = 1, h = 0, end = 0;
 
 function layout() {
   var avail = window.innerHeight - BOTTOM;
-  h = Math.floor(avail / LINE) * LINE; // whole lines only, so none is cut in half
+  h = Math.floor(avail / LINE) * LINE; // whole lines only
   page.style.height = h + 'px';
-  flow.style.paddingBottom = '0';
-  total = Math.max(1, Math.ceil(flow.offsetHeight / h));
-  // Pad the end so the last page can scroll fully into place.
-  flow.style.paddingBottom = h + 'px';
-  // Open on the last page: the newest messages, like a chat.
+  end = Math.max(0, flow.offsetHeight - h);
+  total = 1 + Math.ceil(end / h);
+  // Pages count back from the newest message, so the last page is always full.
   show(total - 1);
 }
 
 function show(n) {
   cur = Math.max(0, Math.min(total - 1, n));
-  page.scrollTop = cur * h;
+  page.scrollTop = Math.max(0, end - (total - 1 - cur) * h);
   pos.innerHTML = (cur + 1) + ' / ' + total;
 }
 
