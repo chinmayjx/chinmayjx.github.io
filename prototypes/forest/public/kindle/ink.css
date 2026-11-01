@@ -4,7 +4,8 @@
 html, body { margin: 0; padding: 0; background: #fff; color: #000; }
 body { font-family: Georgia, "Bookerly", serif; font-size: 22px; line-height: 32px; overflow: hidden; }
 a { color: #000; }
-button, input { font: inherit; color: #000; background: #fff; border-radius: 0; -webkit-appearance: none; }
+button, input, textarea { font: inherit; color: #000; background: #fff; border-radius: 0; -webkit-appearance: none; outline: none; box-shadow: none; }
+textarea:focus, button:focus, input:focus { outline: none; }
 
 /* Bottom bar: the only chrome. */
 .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; border-top: 3px solid #000; background: #fff; }
