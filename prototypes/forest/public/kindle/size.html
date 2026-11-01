@@ -22,6 +22,10 @@ var s = [
   'viewport: ' + window.innerWidth + ' x ' + window.innerHeight,
   'screen:   ' + screen.width + ' x ' + screen.height,
   'dpr:      ' + (window.devicePixelRatio || 1),
+  'xhr:      ' + (window.XMLHttpRequest ? 'yes' : 'no'),
+  'fetch:    ' + (window.fetch ? 'yes' : 'no'),
+  'sse:      ' + (window.EventSource ? 'yes' : 'no'),
+  'ws:       ' + (window.WebSocket ? 'yes' : 'no'),
   'ua:       ' + navigator.userAgent
 ];
 document.getElementById('out').innerHTML = s.join('<br>').replace(/ /g, '&nbsp;');
