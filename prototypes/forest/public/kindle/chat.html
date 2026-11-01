@@ -58,7 +58,6 @@
   <td style="width:18%"><a href="chat.html">&#8635;</a></td>
 </tr></table></div>
 
-<div class="toast" id="toast"></div>
 
 <script>
 // ES5 only: the Kindle browser is old.
@@ -68,14 +67,16 @@ var flow = document.getElementById('flow');
 var pos = document.getElementById('pos');
 var cur = 0, total = 1, h = 0, end = 0;
 
-function layout() {
+function layout(follow) {
   var avail = window.innerHeight - BOTTOM;
   h = Math.floor(avail / LINE) * LINE; // whole lines only
   page.style.height = h + 'px';
+  var wasLast = cur >= total - 1;
   end = Math.max(0, flow.offsetHeight - h);
   total = 1 + Math.ceil(end / h);
   // Pages count back from the newest message, so the last page is always full.
-  show(total - 1);
+  // While a reply streams, stay with it only if you're already on the last page.
+  show(follow === false && !wasLast ? cur : total - 1);
 }
 
 function show(n) {
@@ -86,17 +87,76 @@ function show(n) {
 
 function turn(d) { show(cur + d); }
 
-function send(t) {
-  if (!t) return;
-  var el = document.getElementById('toast');
-  el.innerHTML = 'Mock: would send "' + t.replace(/</g, '&lt;') + '"';
-  el.style.display = 'block';
-  setTimeout(function () { el.style.display = 'none'; }, 2000);
-  document.getElementById('text').value = '';
+function esc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+function add(who, cls) {
+  var w = document.createElement('div');
+  w.className = 'who';
+  w.innerHTML = who;
+  var m = document.createElement('div');
+  m.className = 'msg' + (cls ? ' ' + cls : '');
+  flow.appendChild(w);
+  flow.appendChild(m);
+  return { who: w, msg: m };
 }
 
+// Canned replies for the demo. Paragraphs are split by \n.
+var REPLIES = {
+  yes: 'Great, wiring it up. First I add a small set of pages to devbox-hub that list your chats and read their messages from the sessions API.\nThen deploy-box gets a new address that forwards to the hub over Tailscale, behind Cloudflare Access. On the Kindle you log in once with a code sent to your email.\nAfter that, this page shows your real chats, and replies you type here go into them, just like from your phone. I will tell you when it is ready to try.',
+  no: 'Okay, leaving it as a mock for now. Nothing is exposed and nothing changes on the devbox.\nWhen you want the real version, tap Yes on this question or just tell me from your phone.',
+  other: 'This reply is streaming in chunks, about one line a second, the way a real answer would arrive from the devbox.\nOn e-ink, each update redraws only the lines that changed, so the screen should not flash black between chunks. If it does, I can slow the updates down or switch to updating once per paragraph.\nTry turning to an earlier page while this is still writing: the page should stay where you put it instead of jumping back to the end.\nThat is the whole idea. In the real version the text comes from your actual chat instead of this script.'
+};
+
+var streaming = false;
+
+function send(t) {
+  t = (t || '').replace(/^\s+|\s+$/g, '');
+  if (!t || streaming) return;
+  document.getElementById('text').value = '';
+  var me = add('You', 'me');
+  me.msg.innerHTML = '<p>' + esc(t) + '</p>';
+  var key = /^yes\b/i.test(t) ? 'yes' : /^no\b/i.test(t) ? 'no' : 'other';
+  stream(REPLIES[key]);
+}
+
+function stream(text) {
+  streaming = true;
+  var r = add('Claude (demo) &middot; writing&hellip;');
+  var paras = text.split('\n'), pi = 0, words = paras[0].split(' '), wi = 0;
+  var p = document.createElement('p');
+  r.msg.appendChild(p);
+  layout();
+  // Long enough before the first chunk to feel like the agent thinking.
+  setTimeout(tick, 1200);
+  function tick() {
+    // About 8 words per update, once a second: a line at a time on e-ink.
+    var chunk = words.slice(wi, wi + 8).join(' ');
+    wi += 8;
+    p.innerHTML += (p.innerHTML ? ' ' : '') + esc(chunk);
+    if (wi >= words.length) {
+      pi++;
+      if (pi >= paras.length) {
+        r.who.innerHTML = 'Claude (demo)';
+        streaming = false;
+        layout(false);
+        return;
+      }
+      words = paras[pi].split(' ');
+      wi = 0;
+      p = document.createElement('p');
+      r.msg.appendChild(p);
+    }
+    layout(false);
+    setTimeout(tick, 1000);
+  }
+}
+
+document.getElementById('text').onkeydown = function (e) {
+  if ((e || window.event).keyCode === 13) send(this.value);
+};
+
 layout();
-window.onresize = layout;
+window.onresize = function () { layout(false); };
 </script>
 </body>
 </html>
