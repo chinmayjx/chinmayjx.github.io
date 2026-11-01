@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="robots" content="noindex">
+<title>Orchestrator</title>
+<link rel="stylesheet" href="ink.css">
+</head>
+<body>
+<div class="page" id="page">
+  <div class="flow" id="flow">
+    <div class="who">You</div>
+    <div class="msg me"><p>Can you create a mock page and deploy it on my domain? Just some mock chat page that I can see on my Kindle.</p></div>
+
+    <div class="who">Claude</div>
+    <div class="msg">
+      <p>Done. The mock is at <code>chinmayjain.me/kindle</code>. It has three screens:</p>
+      <ul>
+        <li><b>Chats</b>: every chat with its state and last line.</li>
+        <li><b>A chat</b>: this page. Tap the right side to turn the page, the left side to go back.</li>
+        <li><b>Screen</b>: reports your browser's real size so I can fit the text exactly.</li>
+      </ul>
+      <p>There's no scrolling anywhere. Scrolling on the Kindle browser is slow and smears the screen, so everything is split into pages like a book.</p>
+      <p>The bottom strip is the only chrome: a reply box, quick answers, and page controls. The Kindle's own toolbar still takes the top, and a web page can't hide it.</p>
+    </div>
+
+    <div class="who">You</div>
+    <div class="msg me"><p>What happens when the devbox is asleep?</p></div>
+
+    <div class="who">Claude</div>
+    <div class="msg">
+      <p>In the real version, the panel lives on deploy-box, which never sleeps. When the devbox is off it says so at the top of the chat list, with a wake button if you want one.</p>
+      <p>Replies you type here go to the chat the same way they would from your phone. For anything long, speak it into the same chat on your phone and read the answer here.</p>
+    </div>
+
+    <div class="who">Claude</div>
+    <div class="ask">
+      <p><b>Needs you:</b> wire this to your real chats next? It needs a public address on deploy-box behind Cloudflare Access, with an emailed-code login on the Kindle.</p>
+    </div>
+  </div>
+  <div class="zone prev" onclick="turn(-1)"></div>
+  <div class="zone next" onclick="turn(1)"></div>
+</div>
+
+<div class="reply"><table><tr>
+  <td><input id="text" type="text" placeholder="Reply..."></td>
+  <td style="width:90px"><button onclick="send(document.getElementById('text').value)">Send</button></td>
+  <td style="width:70px"><button onclick="send('Yes')">Yes</button></td>
+  <td style="width:70px"><button onclick="send('No')">No</button></td>
+</tr></table></div>
+
+<div class="bar"><table><tr>
+  <td style="width:28%"><a href="index.html">&laquo; Chats</a></td>
+  <td style="width:18%"><button onclick="turn(-1)">&lsaquo;</button></td>
+  <td style="width:18%" class="pos" id="pos">1 / 1</td>
+  <td style="width:18%"><button onclick="turn(1)">&rsaquo;</button></td>
+  <td style="width:18%"><a href="chat.html">&#8635;</a></td>
+</tr></table></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ES5 only: the Kindle browser is old.
+var LINE = 32, BOTTOM = 128; // reply strip + bar
+var page = document.getElementById('page');
+var flow = document.getElementById('flow');
+var pos = document.getElementById('pos');
+var cur = 0, total = 1, h = 0;
+
+function layout() {
+  var avail = window.innerHeight - BOTTOM;
+  h = Math.floor(avail / LINE) * LINE; // whole lines only, so none is cut in half
+  page.style.height = h + 'px';
+  flow.style.paddingBottom = '0';
+  total = Math.max(1, Math.ceil(flow.offsetHeight / h));
+  // Pad the end so the last page can scroll fully into place.
+  flow.style.paddingBottom = h + 'px';
+  // Open on the last page: the newest messages, like a chat.
+  show(total - 1);
+}
+
+function show(n) {
+  cur = Math.max(0, Math.min(total - 1, n));
+  page.scrollTop = cur * h;
+  pos.innerHTML = (cur + 1) + ' / ' + total;
+}
+
+function turn(d) { show(cur + d); }
+
+function send(t) {
+  if (!t) return;
+  var el = document.getElementById('toast');
+  el.innerHTML = 'Mock: would send "' + t.replace(/</g, '&lt;') + '"';
+  el.style.display = 'block';
+  setTimeout(function () { el.style.display = 'none'; }, 2000);
+  document.getElementById('text').value = '';
+}
+
+layout();
+window.onresize = layout;
+</script>
+</body>
+</html>
