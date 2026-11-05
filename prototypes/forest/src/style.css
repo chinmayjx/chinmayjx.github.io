@@ -36,6 +36,7 @@
   --wood-sign: #706b50;
   --wood-sign-edge: #383c31;
   --sign-text: #e4ddbd;
+  --post-lit: #857f60;
   --unit: 1px;
   background: var(--near);
   color: var(--ink);
@@ -142,7 +143,6 @@ h1 { font-size: clamp(21px, 2vw, 27px); font-weight: 400; letter-spacing: .025em
 .journey-track { opacity: .15; }
 .journey-progress { transform-origin: left; transform: scaleX(0); opacity: .55; }
 @media (max-width: 600px) {
-  .entrance { top: 58%; left: 12%; }
   h1 { font-size: 22px; margin-top: 17px; }
   .sprig { width: 24px; height: 34px; }
   .clearing { width: 245px; top: 39%; }
@@ -166,7 +166,7 @@ h1 { font-size: clamp(21px, 2vw, 27px); font-weight: 400; letter-spacing: .025em
   --ground-back: #89976c; --ground: #657655; --ground-line: #c8c29a;
   --grass: #8b9d6c; --grass-light: #b3b57a;
   --near: #304b3e; --near-fern: #3d5e45; --mist: #f6f4ce;
-  --wood-sign: #b1a17b; --wood-sign-edge: #6d7051; --sign-text: #3a4331;
+  --wood-sign: #b1a17b; --wood-sign-edge: #6d7051; --sign-text: #3a4331; --post-lit: #c7b994;
 }
 html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 [data-theme='light'] .sky { background: radial-gradient(ellipse at 61% 31%, #fff9e6a6, transparent 55%), linear-gradient(var(--sky-top), var(--sky-bottom) 80%); }
@@ -202,3 +202,59 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .theme-toggle .sun, [data-theme='light'] .theme-toggle .moon-icon { display: none; }
 [data-theme='light'] .theme-toggle .sun { display: block; }
 .fps-overlay { position: fixed; z-index: 40; left: 10px; bottom: 10px; margin: 0; padding: 8px 10px; border-radius: 8px; background: #000b; color: #cfe8d0; font: 11px/1.45 ui-monospace, Menlo, monospace; pointer-events: auto; }
+
+/* Screen 1 is text about me on a frosted card, the same glass as the pill: UI over the
+   forest, readable whatever is behind it. A step into the woods stands one post: the notes point on into
+   the forest (right), work and resume point back out (left), each group on its own. */
+.intro { position: absolute; z-index: 4; left: 6%; right: 6%; top: 33%; padding: 22px 22px 24px; border-radius: 20px; border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); background: color-mix(in srgb, var(--sky-top) 58%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); will-change: transform, opacity; }
+.intro h1 { margin: 0; font-size: 32px; font-weight: 400; letter-spacing: .01em; }
+.intro p { margin: 12px 0 0; max-width: 36ch; font-size: 16px; line-height: 1.65; color: var(--ink); }
+.signpost { --plate-h: 38px; position: absolute; z-index: 5; left: calc(100% + 44%); width: 0; top: 37%; bottom: calc(100% - 786 * var(--unit)); will-change: transform; }
+.signpost ul { list-style: none; margin: 0; padding: 0; }
+.post { position: absolute; left: -8px; width: 16px; top: -12px; height: calc(100% + 12px); overflow: visible; }
+.post-wood { fill: var(--wood-sign); }
+.post-lit { fill: var(--post-lit); }
+.post-shade { fill: var(--wood-sign-edge); }
+.signpost-plates { position: absolute; top: 4px; left: 0; width: 0; display: flex; flex-direction: column; gap: 15px; }
+.plates { display: flex; flex-direction: column; gap: 7px; }
+.plates li { display: flex; }
+.plates.into { margin-left: 6px; align-items: flex-start; }
+.plates.out { margin-right: 6px; align-items: flex-end; }
+.plate { position: relative; display: flex; align-items: center; height: var(--plate-h); padding: 0 26px 2px 15px; color: var(--sign-text); background: var(--wood-sign); white-space: nowrap; clip-path: polygon(0 7%, 86% 0, 100% 50%, 86% 100%, 0 93%); box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--wood-sign-edge) 45%, transparent), inset 0 2px 0 color-mix(in srgb, var(--post-lit) 70%, transparent); transition: filter .2s, translate .2s; -webkit-tap-highlight-color: transparent; }
+.plate::after { content: ''; position: absolute; left: 7px; top: 47%; width: 3px; height: 3px; border-radius: 50%; background: var(--wood-sign-edge); }
+.plate span { position: relative; font-family: 'Caveat', Georgia, cursive; font-size: 25px; }
+.plates.out .plate { padding: 0 15px 2px 26px; clip-path: polygon(14% 0, 100% 7%, 100% 93%, 14% 100%, 0 50%); }
+.plates.out .plate::after { left: auto; right: 7px; }
+.plates li:nth-child(odd) .plate { transform: rotate(-1deg); }
+.plates li:nth-child(even) .plate { transform: rotate(.8deg); }
+.plate:hover { filter: brightness(1.13); translate: 3px 0; }
+.plates.out .plate:hover { translate: -3px 0; }
+.walk-hint { font-size: 11px; }
+#waypoints .clearing { top: 40%; }
+/* UI, not scenery: the links elsewhere and the day/night switch share one pill. */
+.ui-pill { position: fixed; z-index: 30; top: 14px; right: 14px; display: flex; align-items: center; padding: 2px 4px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent); background: color-mix(in srgb, var(--sky-top) 55%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.ui-pill a { display: grid; place-items: center; width: 36px; height: 36px; color: var(--ink); opacity: .8; border-radius: 50%; }
+.ui-pill a:hover { opacity: 1; }
+.ui-pill a svg { width: 17px; height: 17px; fill: currentColor; }
+.pill-divider { width: 1px; height: 18px; margin: 0 4px; background: color-mix(in srgb, var(--ink) 28%, transparent); }
+.ui-pill .theme-toggle { position: static; width: 36px; height: 36px; border: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.ui-pill .theme-toggle svg { width: 17px; height: 17px; }
+@media (min-width: 900px) {
+  /* Laptop: both screens fit side by side, the text on the left and the posts beside it. */
+  .intro { left: 7%; right: auto; width: min(460px, 34%); top: 34%; padding: 28px 30px 30px; }
+  .intro h1 { font-size: 42px; }
+  .intro p { font-size: 17px; }
+  .signpost { --plate-h: 44px; left: 56%; top: 31%; }
+  .plates { gap: 9px; }
+  .signpost-plates { gap: 18px; }
+  .plate span { font-size: 29px; }
+  .ui-pill { top: 18px; right: 20px; }
+}
+/* The sprig from the loading veil crowns the name, and ends the walk in the clearing. */
+.intro .sprig { display: block; width: 28px; height: 39px; margin: 0 0 10px -2px; color: var(--quiet); opacity: .9; }
+#waypoints .clearing { display: flex; flex-direction: column; align-items: center; width: 260px; }
+.clearing .sprig { width: 30px; height: 42px; color: var(--quiet); }
+.clearing-caption { margin: 12px 0 0; }
+.clearing .return-link { display: inline-flex; align-items: center; gap: 8px; margin: 22px 0 0; padding: 8px 16px; font-size: 13px; letter-spacing: .03em; color: var(--ink); opacity: .8; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent); background: color-mix(in srgb, var(--sky-top) 55%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.clearing .return-link span { padding: 0; }
+.clearing .return-link:hover { opacity: 1; }

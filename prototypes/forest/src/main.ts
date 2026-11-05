@@ -41,7 +41,8 @@ noise.width = noise.height = 0;
 
 const walk = document.querySelector<HTMLElement>('#walk')!;
 const stage = document.querySelector<HTMLElement>('.stage')!;
-const entrance = document.querySelector<HTMLElement>('.entrance')!;
+const intro = document.querySelector<HTMLElement>('.intro')!;
+const guidepost = document.querySelector<HTMLElement>('.signpost')!;
 const hint = document.querySelector<HTMLElement>('.walk-hint')!;
 const progressBar = document.querySelector<HTMLElement>('.journey-progress')!;
 const waypoints = document.querySelector<HTMLElement>('#waypoints')!;
@@ -70,8 +71,9 @@ function render() {
   for (const { element, speed } of layers) {
     element.style.transform = `translate3d(${-offset * speed}px,0,0)`;
   }
-  entrance.style.transform = `translate3d(${-offset * .4}px,0,0)`;
-  entrance.style.opacity = `${Math.max(0, 1 - offset / (viewportWidth * .22))}`;
+  guidepost.style.transform = `translate3d(${-offset}px,0,0)`;
+  intro.style.transform = `translate3d(${-offset * .4}px,0,0)`;
+  intro.style.opacity = `${Math.max(0, 1 - offset / (viewportWidth * .45))}`;
   hint.style.opacity = `${Math.max(0, 1 - progress * 20)}`;
   progressBar.style.transform = `scaleX(${progress})`;
   // A link reached with Tab is brought into view by the focus handler below.
@@ -112,8 +114,9 @@ function motionPreferenceChanged() {
   previousHeight = 0;
   if (reducedMotion.matches) {
     layers.forEach(({ element }) => { element.style.transform = ''; });
-    entrance.style.transform = '';
-    entrance.style.opacity = '';
+    guidepost.style.transform = '';
+    intro.style.transform = '';
+    intro.style.opacity = '';
     hint.style.opacity = '';
   }
   measure();
@@ -162,16 +165,9 @@ function goToStop(stop: HTMLElement) {
 stops.forEach(stop => {
   stop.addEventListener('focusin', () => goToStop(stop));
 });
-document.querySelector<HTMLAnchorElement>('.skip-link')!.addEventListener('click', event => {
-  if (reducedMotion.matches) return;
-  event.preventDefault();
-  const clearing = document.querySelector<HTMLElement>('#clearing')!;
-  goToStop(clearing);
-  clearing.querySelector<HTMLAnchorElement>('a')!.focus({ preventScroll: true });
-});
 document.querySelector<HTMLButtonElement>('.return-link')!.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'instant' });
-  document.querySelector<HTMLAnchorElement>('.skip-link')!.focus({ preventScroll: true });
+  guidepost.querySelector<HTMLAnchorElement>('a')!.focus({ preventScroll: true });
 });
 // Work and Resume are deliberately local placeholders in this visual study.
 document.querySelectorAll<HTMLAnchorElement>('[data-placeholder]').forEach(link => {
