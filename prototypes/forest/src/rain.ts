@@ -1,70 +1,52 @@
-// Night rain: slanted streaks in depth over the forest, angled by the same gusts that
-// bend the trees (see the forest shader). Far drops are faint, short and slow.
-type Drop = { x: number; y: number; z: number; length: number; speed: number };
-type Splash = { x: number; y: number; age: number };
+// Night rain without per-frame work: each depth layer is a seamless SVG tile of streaks
+// (they wrap around the tile's edges), slid diagonally by exactly one tile per loop with a
+// CSS transform. Moving a tile by its own size gives the same picture, so the loop never
+// jumps, and the slant comes from the tile's shape: width / height.
+type RainLayer = { width: number; height: number; drops: number; length: [number, number]; stroke: [number, number]; alpha: [number, number]; seconds: number };
 
-function gust(t: number, x: number) {
-  return .55 + .45 * Math.sin(t * .55 - x * .0022) * (.65 + .35 * Math.sin(t * .21 + 1.3));
+const LAYERS: RainLayer[] = [
+  { width: 150, height: 600, drops: 16, length: [10, 16], stroke: [.6, .8], alpha: [.12, .22], seconds: 1.15 },
+  { width: 220, height: 880, drops: 12, length: [16, 26], stroke: [.9, 1.2], alpha: [.2, .32], seconds: .95 },
+  { width: 300, height: 1200, drops: 7, length: [26, 40], stroke: [1.3, 1.7], alpha: [.3, .45], seconds: .8 },
+];
+
+function random(seed: number) {
+  return () => ((seed = (Math.imul(seed, 1664525) + 1013904223) | 0) >>> 0) / 2 ** 32;
 }
 
-export function startRain(stage: HTMLElement, groundY: () => number) {
-  const canvas = document.createElement('canvas');
-  canvas.className = 'rain';
-  canvas.setAttribute('aria-hidden', 'true');
-  stage.querySelector('#landscape')!.after(canvas);
-  const context = canvas.getContext('2d')!;
-  let drops: Drop[] = [], splashes: Splash[] = [], width = 0, height = 0, last = performance.now();
-
-  function spawn(drop: Partial<Drop> = {}): Drop {
-    const z = Math.random() ** 1.6;
-    return { x: Math.random() * (width + 200) - 100, y: -Math.random() * height, z,
-      length: 10 + 22 * z, speed: 520 + 700 * z, ...drop };
-  }
-  function resize() {
-    const density = Math.min(devicePixelRatio || 1, 2);
-    width = stage.clientWidth; height = stage.clientHeight;
-    canvas.width = width * density; canvas.height = height * density;
-    context.setTransform(density, 0, 0, density, 0, 0);
-    drops = Array.from({ length: Math.round(width * height / 900) }, () => spawn({ y: Math.random() * height }));
-  }
-  new ResizeObserver(resize).observe(stage);
-
-  function frame(now: number) {
-    requestAnimationFrame(frame);
-    const dt = Math.min(.05, (now - last) / 1000); last = now;
-    const raining = document.documentElement.dataset.theme !== 'light'
-      && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-    canvas.style.opacity = raining ? '1' : '0';
-    if (!raining || document.hidden) return;
-    context.clearRect(0, 0, width, height);
-    const slant = .12 + .3 * gust(now / 1000, width * .5);
-    const ground = groundY();
-    context.lineCap = 'round';
-    for (const drop of drops) {
-      drop.y += drop.speed * dt;
-      drop.x += drop.speed * slant * dt;
-      const floor = ground + (1 - drop.z) * -40 + drop.z * 60;
-      if (drop.y > floor) {
-        if (drop.z > .45 && Math.random() < .5) splashes.push({ x: drop.x, y: floor, age: 0 });
-        Object.assign(drop, spawn({ y: -drop.length - Math.random() * 60 }));
-        continue;
-      }
-      context.strokeStyle = `rgba(178, 206, 204, ${.12 + .38 * drop.z})`;
-      context.lineWidth = .6 + .9 * drop.z;
-      context.beginPath();
-      context.moveTo(drop.x, drop.y);
-      context.lineTo(drop.x - drop.length * slant, drop.y - drop.length);
-      context.stroke();
-    }
-    splashes = splashes.filter(splash => (splash.age += dt) < .25);
-    context.lineWidth = .7;
-    for (const splash of splashes) {
-      const k = splash.age / .25;
-      context.strokeStyle = `rgba(178, 206, 204, ${.35 * (1 - k)})`;
-      context.beginPath();
-      context.ellipse(splash.x, splash.y, 2 + 6 * k, 1 + 1.5 * k, 0, Math.PI, 2 * Math.PI);
-      context.stroke();
+function tile({ width, height, drops, length, stroke, alpha }: RainLayer, rng: () => number) {
+  const slant = width / height;
+  let lines = '';
+  for (let i = 0; i < drops; i++) {
+    const x = rng() * width, y = rng() * height;
+    const len = length[0] + rng() * (length[1] - length[0]);
+    const w = (stroke[0] + rng() * (stroke[1] - stroke[0])).toFixed(2);
+    const a = (alpha[0] + rng() * (alpha[1] - alpha[0])).toFixed(2);
+    // Draw the streak and its wrapped copies, so the tile repeats without seams.
+    for (const dx of [-width, 0, width]) for (const dy of [-height, 0, height]) {
+      const x1 = x + dx, y1 = y + dy, x0 = x1 - len * slant, y0 = y1 - len;
+      if (Math.max(x0, x1) < 0 || Math.min(x0, x1) > width || y1 < 0 || y0 > height) continue;
+      lines += `<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke-width="${w}" stroke-opacity="${a}"/>`;
     }
   }
-  requestAnimationFrame(frame);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><g stroke="#b9d3d1" stroke-linecap="round">${lines}</g></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
+export function startRain(stage: HTMLElement) {
+  const rain = document.createElement('div');
+  rain.className = 'rain';
+  rain.setAttribute('aria-hidden', 'true');
+  const rng = random(907);
+  for (const layer of LAYERS) {
+    const sheet = document.createElement('div');
+    sheet.className = 'rain-layer';
+    sheet.style.setProperty('--w', `${layer.width}px`);
+    sheet.style.setProperty('--h', `${layer.height}px`);
+    sheet.style.backgroundImage = tile(layer, rng);
+    sheet.style.backgroundSize = `${layer.width}px ${layer.height}px`;
+    sheet.style.animationDuration = `${layer.seconds}s`;
+    rain.append(sheet);
+  }
+  stage.querySelector('#landscape')!.after(rain);
 }

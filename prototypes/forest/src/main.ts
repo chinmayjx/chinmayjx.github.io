@@ -114,7 +114,6 @@ function motionPreferenceChanged() {
     hint.style.opacity = '';
   }
   measure();
-startRain(stage, () => (stage.clientHeight - 900 * scale) / 2 + 790 * scale);
 }
 
 window.addEventListener('scroll', queueRender, { passive: true });
@@ -169,4 +168,4 @@ document.querySelectorAll<HTMLAnchorElement>('[data-placeholder]').forEach(link 
   link.addEventListener('click', event => event.preventDefault());
 });
 measure();
-startRain(stage, () => (stage.clientHeight - 900 * scale) / 2 + 790 * scale);
+startRain(stage);

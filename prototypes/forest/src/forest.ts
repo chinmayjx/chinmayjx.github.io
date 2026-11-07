@@ -235,7 +235,7 @@ function tree({ seed, x, y, height, width, kind = 'beech', fine = false, lean = 
   const tones = (set: string[][], prefix: string) => set.map((d, i) => path(`${prefix}-${i}`, d.join(''))).join('');
   // Roots wind in the opposite direction to branches. Keep their paint separate
   // so nonzero filling cannot punch a hole where trunk and roots overlap.
-  return `<g class="tree ${kind}" data-sway="${n(x)} ${n(y)} ${n(height)}">${tones(back, 'back')}${path('canopy-body', body.join(''))}${path('wood', roots)}${path('wood', wood.join(''))}${path('wood', joints.join(''))}${path('bark-light outline', highlights.join(''))}${detailMarks}${path('tree-mound', mound)}${path('twig', twigs.join(''))}${tones(front, 'canopy')}</g>`;
+  return `<g class="tree ${kind}">${tones(back, 'back')}${path('canopy-body', body.join(''))}${path('wood', roots)}${path('wood', wood.join(''))}${path('wood', joints.join(''))}${path('bark-light outline', highlights.join(''))}${detailMarks}${path('tree-mound', mound)}${path('twig', twigs.join(''))}${tones(front, 'canopy')}</g>`;
 }
 
 function fern(x: number, y: number, size: number, rng: Random, shade = '') {
@@ -254,7 +254,7 @@ function fern(x: number, y: number, size: number, rng: Random, shade = '') {
       leaves += leaf(fx, fy, lengthLeaf, angle - PI * .95) + leaf(fx, fy, lengthLeaf, angle - PI * .05);
     }
   }
-  return `<g class="fern ${shade}" data-sway="${n(x)} ${n(y)} ${n(size * 1.6)}"><path d="${stems}" fill="none" stroke="currentColor" stroke-width=".8"/>${path('leaf leaf-0', leaves)}</g>`;
+  return `<g class="fern ${shade}"><path d="${stems}" fill="none" stroke="currentColor" stroke-width=".8"/>${path('leaf leaf-0', leaves)}</g>`;
 }
 
 function grasses(width: number, seed: number, baseline: number, count: number, tall = false) {
