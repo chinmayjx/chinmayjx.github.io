@@ -240,7 +240,7 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .clearing .socials { margin: 16px 0 0; justify-content: center; }
 @media (min-width: 900px) {
   /* Laptop: the page is centred and wider, with the forest on both sides. */
-  .column { left: 24px; right: 24px; padding: 22svh 0 55svh; }
+  .column { left: 24px; right: 24px; padding: 22svh 0; }
   .page { --page-pad: 48px; max-width: 660px; margin: 0 auto; }
   .page > * { padding: 34px 0; }
   .page h1, .page h2 { font-size: 17px; }
