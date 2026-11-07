@@ -134,7 +134,6 @@ h1 { font-size: clamp(21px, 2vw, 27px); font-weight: 400; letter-spacing: .025em
 .clearing-links span { font-size: 11px; opacity: .5; }
 .return-link { display: block; margin: 34px auto 0; padding: 6px; background: none; border: 0; color: var(--quiet); font-size: 11px; letter-spacing: .035em; cursor: pointer; opacity: .65; }
 .return-link:hover { opacity: 1; }
-.return-link span { display: inline-block; padding-left: 9px; }
 .walk-hint { position: absolute; z-index: 7; bottom: 37px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 11px; white-space: nowrap; color: var(--quiet); font-size: 10px; letter-spacing: .14em; margin: 0; pointer-events: none; }
 .hint-line { width: 25px; height: 1px; background: currentColor; opacity: .5; }
 .walk-hint > span:last-child { font-size: 14px; letter-spacing: 0; }
@@ -210,7 +209,9 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
    one accent comes from the forest: firefly yellow at night, sunlight amber by day. */
 .column { position: absolute; z-index: 5; top: 0; left: 20px; right: 20px; padding: 19svh 0; }
 .page { --page-pad: 26px; --panel: #0a1b1e; --accent: #d9df9e; --rule: color-mix(in srgb, var(--ink) 12%, transparent); padding: 0 var(--page-pad); background: var(--panel); border: 1px solid var(--rule); border-radius: 2px; }
-[data-theme='light'] .page { --panel: #f4f2e9; --accent: #93641c; }
+[data-theme='light'] .page { --panel: #f4f2e9; --accent: #7a4f10; --ink: #1e2c24; --quiet: #465a4b; }
+/* Day: body text a little stronger, so it clears 7:1 against the pale page. */
+[data-theme='light'] .page p:not(.lede), [data-theme='light'] .contents ul a { color: color-mix(in srgb, var(--ink) 82%, transparent); }
 .page > * { padding: 22px 0; }
 .page > * + * { border-top: 1px solid var(--rule); }
 .page .sprig { display: block; width: 19px; height: 27px; margin: 0 0 16px -1px; color: var(--quiet); }
@@ -222,9 +223,9 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .links li + li::before { content: '·'; padding: 0 7px; color: var(--quiet); opacity: .6; }
 .links a, .take-walk, .return-link { font-size: 15px; color: var(--accent); }
 .links a { padding: 5px 0; display: inline-block; }
-.page a:hover, .page button:hover { text-decoration: underline; text-underline-offset: 4px; }
+.page a:hover, .page button:hover { text-decoration: underline; text-underline-offset: 6px; text-decoration-skip-ink: none; }
 
-.take-walk, .page .return-link { display: inline-flex; gap: 9px; margin: 14px 0 0; padding: 6px 0; border: 0; background: none; cursor: pointer; font-style: italic; opacity: 1; letter-spacing: 0; }
+.take-walk, .page .return-link { display: inline-block; margin: 14px 0 0; padding: 6px 0; border: 0; background: none; cursor: pointer; font-style: italic; opacity: 1; letter-spacing: 0; }
 .contents { display: grid; gap: 16px; margin-top: 20px !important; }
 .contents h3 { margin: 0; font-size: 15px; font-weight: 500; }
 .contents h3 a { color: var(--accent); }
@@ -266,7 +267,7 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .intro .theme-toggle:active { background: color-mix(in srgb, var(--ink) 22%, transparent); }
 /* Where to find me, as a sentence after Work and Resume; "email" copies the address. */
 .page .elsewhere { margin-top: 12px; }
-.elsewhere a { color: var(--accent); }
+.elsewhere a, .intro p a { color: var(--accent); }
 /* Copy confirmation: a small toast near the bottom of the screen, away from the text. */
 .toast { position: fixed; z-index: 30; left: 50%; bottom: 28px; translate: -50% 8px; padding: 8px 16px; border-radius: 999px; font-size: 13px; letter-spacing: .02em; color: var(--ink); background: color-mix(in srgb, var(--sky-top) 92%, var(--ink)); box-shadow: 0 6px 20px -8px #0008; opacity: 0; pointer-events: none; transition: opacity .25s, translate .25s; }
 .toast.shown { opacity: 1; translate: -50% 0; }

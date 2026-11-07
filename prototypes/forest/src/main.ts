@@ -159,9 +159,6 @@ function goToStop(stop: HTMLElement) {
 stops.forEach(stop => {
   stop.addEventListener('focusin', () => goToStop(stop));
 });
-document.querySelector<HTMLButtonElement>('.return-link')!.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
 // The email address copies when tapped: mail apps vary too much to rely on mailto.
 // A small toast confirms it, except on Android, which shows its own; the sentence
 // itself never changes.
