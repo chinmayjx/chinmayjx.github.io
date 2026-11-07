@@ -209,7 +209,7 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
    in the notes' book type, so it contrasts with the painting instead of imitating it. The
    one accent comes from the forest: firefly yellow at night, sunlight amber by day. */
 .column { position: absolute; z-index: 5; top: 0; left: 20px; right: 20px; padding: 30svh 0 55svh; }
-.page { --panel: #0a1b1e; --accent: #d9df9e; --rule: color-mix(in srgb, var(--ink) 12%, transparent); padding: 0 26px; background: var(--panel); border: 1px solid var(--rule); border-radius: 2px; }
+.page { --page-pad: 26px; --panel: #0a1b1e; --accent: #d9df9e; --rule: color-mix(in srgb, var(--ink) 12%, transparent); padding: 0 var(--page-pad); background: var(--panel); border: 1px solid var(--rule); border-radius: 2px; }
 [data-theme='light'] .page { --panel: #f4f2e9; --accent: #93641c; }
 .page > * { padding: 26px 0; }
 .page > * + * { border-top: 1px solid var(--rule); }
@@ -239,9 +239,14 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .socials svg { width: 18px; height: 18px; fill: currentColor; }
 .clearing .socials { margin: 16px 0 0; justify-content: center; }
 @media (min-width: 900px) {
-  /* Laptop: a reading column on the left; the forest walks past on the right. */
-  .column { left: max(24px, 9%); right: auto; width: 420px; padding-top: 24svh; }
-  .page { padding: 0 32px; }
+  /* Laptop: the page is centred and wider, with the forest on both sides. */
+  .column { left: 24px; right: 24px; padding-top: 22svh; }
+  .page { --page-pad: 48px; max-width: 660px; margin: 0 auto; }
+  .page > * { padding: 34px 0; }
+  .page h1, .page h2 { font-size: 17px; }
+  .page p, .links a, .take-walk, .page .return-link { font-size: 16.5px; }
+  .contents h3 { font-size: 16.5px; }
+  .contents ul a { font-size: 16px; }
 }
 /* The sprig from the loading veil crowns the name, and ends the walk in the clearing. */
 #waypoints .clearing { display: flex; flex-direction: column; align-items: center; width: 260px; }
@@ -253,7 +258,7 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .walk-hint, .journey { display: none; }
 .intro { position: relative; }
 /* The day/night switch lives in the page's top corner and scrolls away with it. */
-.intro .theme-toggle { position: absolute; top: 20px; right: 0; width: 38px; height: 38px; border-color: transparent; background: color-mix(in srgb, var(--ink) 8%, transparent); -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--quiet); transition: background .2s, color .2s, transform .2s; }
+.intro .theme-toggle { position: absolute; top: 18px; right: calc(18px - var(--page-pad)); width: 38px; height: 38px; border-color: transparent; background: color-mix(in srgb, var(--ink) 8%, transparent); -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--quiet); transition: background .2s, color .2s, transform .2s; }
 .intro .theme-toggle:hover, .intro .theme-toggle:focus-visible { background: color-mix(in srgb, var(--ink) 15%, transparent); color: var(--ink); }
 .intro .theme-toggle:focus-visible { border-radius: 50%; outline-offset: 3px; }
 .intro .theme-toggle:active { background: color-mix(in srgb, var(--ink) 22%, transparent); }
