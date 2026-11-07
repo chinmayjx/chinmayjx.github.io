@@ -169,6 +169,11 @@ document.querySelector<HTMLButtonElement>('.return-link')!.addEventListener('cli
   window.scrollTo({ top: 0, behavior: 'instant' });
   guidepost.querySelector<HTMLAnchorElement>('a')!.focus({ preventScroll: true });
 });
+// The intro's last line leads into the walk: a few steps in, to the signpost.
+document.querySelector<HTMLButtonElement>('.take-walk')!.addEventListener('click', () => {
+  if (reducedMotion.matches) { guidepost.scrollIntoView({ behavior: 'smooth' }); return; }
+  window.scrollTo({ top: Math.min(1, viewportWidth / travel) * scrollRange, behavior: 'smooth' });
+});
 // Work and Resume are deliberately local placeholders in this visual study.
 document.querySelectorAll<HTMLAnchorElement>('[data-placeholder]').forEach(link => {
   link.addEventListener('click', event => event.preventDefault());

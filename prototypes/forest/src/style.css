@@ -203,12 +203,21 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 [data-theme='light'] .theme-toggle .sun { display: block; }
 .fps-overlay { position: fixed; z-index: 40; left: 10px; bottom: 10px; margin: 0; padding: 8px 10px; border-radius: 8px; background: #000b; color: #cfe8d0; font: 11px/1.45 ui-monospace, Menlo, monospace; pointer-events: auto; }
 
-/* Screen 1 is text about me on a frosted card, the same glass as the pill: UI over the
-   forest, readable whatever is behind it. A step into the woods stands one post: the notes point on into
-   the forest (right), work and resume point back out (left), each group on its own. */
-.intro { position: absolute; z-index: 4; left: 6%; right: 6%; top: 33%; padding: 22px 22px 24px; border-radius: 20px; border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); background: color-mix(in srgb, var(--sky-top) 58%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); will-change: transform, opacity; }
-.intro h1 { margin: 0; font-size: 32px; font-weight: 400; letter-spacing: .01em; }
-.intro p { margin: 12px 0 0; max-width: 36ch; font-size: 16px; line-height: 1.65; color: var(--ink); }
+/* Screen 1: a page of my writing laid over the forest. Solid, hard-edged and small, in
+   the notes' book type, so it contrasts with the painting instead of imitating it. The one
+   accent comes from the forest: firefly yellow at night, sunlight amber by day. */
+.intro { --panel: #0a1b1ef2; --accent: #d9df9e; position: absolute; z-index: 4; left: 24px; right: 24px; top: 50%; translate: 0 -50%; padding: 26px 26px 20px; background: var(--panel); border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); border-radius: 2px; will-change: transform, opacity; }
+[data-theme='light'] .intro { --panel: #f4f2e9f4; --accent: #93641c; }
+.intro .sprig { display: block; width: 19px; height: 27px; margin: 0 0 16px -1px; color: var(--quiet); }
+.intro h1 { margin: 0; font-size: 16px; font-weight: 500; letter-spacing: .03em; }
+.intro p { margin: 14px 0 0; font-size: 15px; line-height: 1.72; color: color-mix(in srgb, var(--ink) 76%, transparent); }
+.intro .lede { margin-top: 6px; font-style: italic; color: var(--ink); }
+.links { display: flex; flex-wrap: wrap; list-style: none; margin: 22px 0 0; padding: 14px 0 0; border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); }
+.links li + li::before { content: '·'; padding: 0 9px; color: var(--quiet); opacity: .6; }
+.links a, .take-walk { font-size: 15px; color: var(--accent); }
+.links a { padding: 6px 0; }
+.links a:hover, .take-walk:hover { text-decoration: underline; text-underline-offset: 4px; }
+.take-walk { display: inline-flex; gap: 9px; margin: 8px 0 0; padding: 6px 0; border: 0; background: none; cursor: pointer; font-style: italic; }
 .signpost { --plate-h: 38px; position: absolute; z-index: 5; left: calc(100% + 44%); width: 0; top: 37%; bottom: calc(100% - 786 * var(--unit)); will-change: transform; }
 .signpost ul { list-style: none; margin: 0; padding: 0; }
 .post { position: absolute; left: -8px; width: 16px; top: -12px; height: calc(100% + 12px); overflow: visible; }
@@ -231,27 +240,21 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .plates.out .plate:hover { translate: -3px 0; }
 .walk-hint { font-size: 11px; }
 #waypoints .clearing { top: 40%; }
-/* UI, not scenery: the links elsewhere and the day/night switch share one pill. */
-.ui-pill { position: fixed; z-index: 30; top: 14px; right: 14px; display: flex; align-items: center; padding: 2px 4px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent); background: color-mix(in srgb, var(--sky-top) 55%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-.ui-pill a { display: grid; place-items: center; width: 36px; height: 36px; color: var(--ink); opacity: .8; border-radius: 50%; }
-.ui-pill a:hover { opacity: 1; }
-.ui-pill a svg { width: 17px; height: 17px; fill: currentColor; }
-.pill-divider { width: 1px; height: 18px; margin: 0 4px; background: color-mix(in srgb, var(--ink) 28%, transparent); }
-.ui-pill .theme-toggle { position: static; width: 36px; height: 36px; border: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
-.ui-pill .theme-toggle svg { width: 17px; height: 17px; }
+/* Where to find me: a quiet row of icons at the foot of the intro card, and again in the clearing. */
+.socials { display: flex; gap: 4px; list-style: none; margin: 18px 0 0 -9px; padding: 0; }
+.socials a { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: var(--ink); opacity: .7; transition: opacity .2s, background .2s; }
+.socials a:hover { opacity: 1; background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.socials svg { width: 18px; height: 18px; fill: currentColor; }
+.clearing .socials { margin: 16px 0 0; justify-content: center; }
 @media (min-width: 900px) {
   /* Laptop: both screens fit side by side, the text on the left and the posts beside it. */
-  .intro { left: 7%; right: auto; width: min(460px, 34%); top: 34%; padding: 28px 30px 30px; }
-  .intro h1 { font-size: 42px; }
-  .intro p { font-size: 17px; }
+  .intro { left: 11%; right: auto; width: 400px; padding: 30px 30px 22px; }
   .signpost { --plate-h: 44px; left: 56%; top: 31%; }
   .plates { gap: 9px; }
   .signpost-plates { gap: 18px; }
   .plate span { font-size: 29px; }
-  .ui-pill { top: 18px; right: 20px; }
 }
 /* The sprig from the loading veil crowns the name, and ends the walk in the clearing. */
-.intro .sprig { display: block; width: 28px; height: 39px; margin: 0 0 10px -2px; color: var(--quiet); opacity: .9; }
 #waypoints .clearing { display: flex; flex-direction: column; align-items: center; width: 260px; }
 .clearing .sprig { width: 30px; height: 42px; color: var(--quiet); }
 .clearing-caption { margin: 12px 0 0; }
