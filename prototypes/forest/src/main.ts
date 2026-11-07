@@ -2,7 +2,6 @@ import './style.css';
 import { drawForest } from './forest';
 import { ForestEngine } from './forest-engine';
 import { startFpsOverlay } from './fps';
-import { startRain } from './rain';
 
 const landscape = document.querySelector<HTMLDivElement>('#landscape')!;
 landscape.innerHTML = drawForest();
@@ -67,7 +66,7 @@ function render() {
   frame = 0;
   if (reducedMotion.matches) { forest.render(0); return; }
   const progress = Math.max(0, Math.min(1, window.scrollY / scrollRange));
-  // The forest stands still behind the page; only the wind and the rain move.
+  // The forest stands still behind the page; only the page scrolls.
   forest.render(0);
   hint.style.opacity = `${Math.max(0, 1 - progress * 20)}`;
   progressBar.style.transform = `scaleX(${progress})`;
@@ -168,4 +167,3 @@ document.querySelectorAll<HTMLAnchorElement>('[data-placeholder]').forEach(link 
   link.addEventListener('click', event => event.preventDefault());
 });
 measure();
-startRain(stage);
