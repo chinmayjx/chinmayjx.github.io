@@ -162,6 +162,29 @@ stops.forEach(stop => {
 document.querySelector<HTMLButtonElement>('.return-link')!.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
+// The email address copies when tapped: mail apps vary too much to rely on mailto.
+// A small toast confirms it, except on Android, which shows its own; the sentence
+// itself never changes.
+// Without a clipboard the link falls back to opening the mail app.
+const email = document.querySelector<HTMLAnchorElement>('.email')!;
+const address = email.href.replace('mailto:', '');
+const toast = document.createElement('p');
+toast.className = 'toast';
+toast.setAttribute('role', 'status');
+document.body.append(toast);
+let toastReset = 0;
+email.addEventListener('click', event => {
+  if (!navigator.clipboard) return;
+  event.preventDefault();
+  navigator.clipboard.writeText(address).then(() => {
+    // Android 13+ confirms every copy itself; a second toast would only repeat it.
+    if (/Android/i.test(navigator.userAgent)) return;
+    toast.textContent = `${address} copied`;
+    toast.classList.add('shown');
+    clearTimeout(toastReset);
+    toastReset = window.setTimeout(() => toast.classList.remove('shown'), 1600);
+  }, () => { location.href = email.href; });
+});
 // Work and Resume are deliberately local placeholders in this visual study.
 document.querySelectorAll<HTMLAnchorElement>('[data-placeholder]').forEach(link => {
   link.addEventListener('click', event => event.preventDefault());

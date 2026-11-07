@@ -219,10 +219,11 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .page .lede { margin-top: 6px; font-style: italic; color: var(--ink); }
 .page ul { list-style: none; margin: 0; padding: 0; }
 .links { display: flex; flex-wrap: wrap; }
-.links li + li::before { content: '·'; padding: 0 9px; color: var(--quiet); opacity: .6; }
+.links li + li::before { content: '·'; padding: 0 7px; color: var(--quiet); opacity: .6; }
 .links a, .take-walk, .return-link { font-size: 15px; color: var(--accent); }
 .links a { padding: 5px 0; display: inline-block; }
 .page a:hover, .page button:hover { text-decoration: underline; text-underline-offset: 4px; }
+
 .take-walk, .page .return-link { display: inline-flex; gap: 9px; margin: 14px 0 0; padding: 6px 0; border: 0; background: none; cursor: pointer; font-style: italic; opacity: 1; letter-spacing: 0; }
 .contents { display: grid; gap: 16px; margin-top: 20px !important; }
 .contents h3 { margin: 0; font-size: 15px; font-weight: 500; }
@@ -257,8 +258,21 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .clearing .return-link:hover { opacity: 1; }
 .walk-hint, .journey { display: none; }
 .intro { position: relative; }
-/* The day/night switch lives in the page's top corner and scrolls away with it. */
+/* The day/night switch sits in the page's top corner, as far from the top edge as from
+   the right, and scrolls away with the page. */
 .intro .theme-toggle { position: absolute; top: 18px; right: calc(18px - var(--page-pad)); width: 38px; height: 38px; border-color: transparent; background: color-mix(in srgb, var(--ink) 8%, transparent); -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--quiet); transition: background .2s, color .2s, transform .2s; }
 .intro .theme-toggle:hover, .intro .theme-toggle:focus-visible { background: color-mix(in srgb, var(--ink) 15%, transparent); color: var(--ink); }
 .intro .theme-toggle:focus-visible { border-radius: 50%; outline-offset: 3px; }
 .intro .theme-toggle:active { background: color-mix(in srgb, var(--ink) 22%, transparent); }
+/* Where to find me, as a sentence after Work and Resume; "email" copies the address. */
+.page .elsewhere { margin-top: 12px; }
+.elsewhere a { color: var(--accent); }
+/* Copy confirmation: a small toast near the bottom of the screen, away from the text. */
+.toast { position: fixed; z-index: 30; left: 50%; bottom: 28px; translate: -50% 8px; padding: 8px 16px; border-radius: 999px; font-size: 13px; letter-spacing: .02em; color: var(--ink); background: color-mix(in srgb, var(--sky-top) 92%, var(--ink)); box-shadow: 0 6px 20px -8px #0008; opacity: 0; pointer-events: none; transition: opacity .25s, translate .25s; }
+.toast.shown { opacity: 1; translate: -50% 0; }
+@media (max-width: 340px) {
+  /* Small phones: a little more room inside the page. */
+  .links li + li::before { padding: 0 5px; }
+  .links a { font-size: 14px; }
+  .page { --page-pad: 20px; }
+}
