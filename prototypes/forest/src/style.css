@@ -253,6 +253,7 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .walk-hint, .journey { display: none; }
 .intro { position: relative; }
 /* The day/night switch lives in the page's top corner and scrolls away with it. */
-.intro .theme-toggle { position: absolute; top: 16px; right: -6px; width: 38px; height: 38px; border-color: transparent; background: color-mix(in srgb, var(--ink) 8%, transparent); -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--quiet); transition: background .2s, color .2s, transform .2s; }
+.intro .theme-toggle { position: absolute; top: 20px; right: 0; width: 38px; height: 38px; border-color: transparent; background: color-mix(in srgb, var(--ink) 8%, transparent); -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--quiet); transition: background .2s, color .2s, transform .2s; }
 .intro .theme-toggle:hover, .intro .theme-toggle:focus-visible { background: color-mix(in srgb, var(--ink) 15%, transparent); color: var(--ink); }
+.intro .theme-toggle:focus-visible { border-radius: 50%; outline-offset: 3px; }
 .intro .theme-toggle:active { background: color-mix(in srgb, var(--ink) 22%, transparent); }
