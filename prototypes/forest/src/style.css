@@ -208,10 +208,10 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
    forest walks past, and the end of the page is the clearing. Solid, hard-edged and small,
    in the notes' book type, so it contrasts with the painting instead of imitating it. The
    one accent comes from the forest: firefly yellow at night, sunlight amber by day. */
-.column { position: absolute; z-index: 5; top: 0; left: 20px; right: 20px; padding: 30svh 0 55svh; }
+.column { position: absolute; z-index: 5; top: 0; left: 20px; right: 20px; padding: 13svh 0; }
 .page { --page-pad: 26px; --panel: #0a1b1e; --accent: #d9df9e; --rule: color-mix(in srgb, var(--ink) 12%, transparent); padding: 0 var(--page-pad); background: var(--panel); border: 1px solid var(--rule); border-radius: 2px; }
 [data-theme='light'] .page { --panel: #f4f2e9; --accent: #93641c; }
-.page > * { padding: 26px 0; }
+.page > * { padding: 22px 0; }
 .page > * + * { border-top: 1px solid var(--rule); }
 .page .sprig { display: block; width: 19px; height: 27px; margin: 0 0 16px -1px; color: var(--quiet); }
 .page h1, .page h2 { margin: 0; font-size: 16px; font-weight: 500; letter-spacing: .03em; }
@@ -240,7 +240,7 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .clearing .socials { margin: 16px 0 0; justify-content: center; }
 @media (min-width: 900px) {
   /* Laptop: the page is centred and wider, with the forest on both sides. */
-  .column { left: 24px; right: 24px; padding-top: 22svh; }
+  .column { left: 24px; right: 24px; padding: 22svh 0 55svh; }
   .page { --page-pad: 48px; max-width: 660px; margin: 0 auto; }
   .page > * { padding: 34px 0; }
   .page h1, .page h2 { font-size: 17px; }
