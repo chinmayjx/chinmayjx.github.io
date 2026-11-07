@@ -13,16 +13,31 @@ extensions.add(GraphicsContextSystem);
 const vertex = `
 in vec2 aPosition;
 in vec4 aColor;
+in vec4 aSway;
+uniform float uTime;
 uniform mat3 uProjectionMatrix;
 uniform mat3 uWorldTransformMatrix;
 uniform mat3 uTransformMatrix;
 out vec4 vColor;
 out float vY;
+// Wind: a plant bends from its base (aSway: base x, base y, height, phase). Gusts roll
+// across the forest from left to right; leaves flutter on top of the sway.
+float gust(float t, float x) {
+  return .55 + .45 * sin(t * .55 - x * .0022) * (.65 + .35 * sin(t * .21 + 1.3));
+}
 void main() {
-  vec3 p = uProjectionMatrix * uWorldTransformMatrix * uTransformMatrix * vec3(aPosition, 1.0);
+  vec2 position = aPosition;
+  if (aSway.z > 0.0) {
+    float h = clamp((aSway.y - position.y) / aSway.z, 0.0, 1.0);
+    float bend = h * h * aSway.z * (.03 * gust(uTime, aSway.x) + .005 * sin(uTime * 1.7 + aSway.w));
+    float flutter = h * h * 1.6 * sin(uTime * 3.1 + position.x * .05 + position.y * .04 + aSway.w);
+    position.x += bend + flutter;
+    position.y += abs(bend) * .12 * h;
+  }
+  vec3 p = uProjectionMatrix * uWorldTransformMatrix * uTransformMatrix * vec3(position, 1.0);
   gl_Position = vec4(p.xy, 0.0, 1.0);
   vColor = aColor;
-  vY = (uWorldTransformMatrix * uTransformMatrix * vec3(aPosition, 1.0)).y;
+  vY = (uWorldTransformMatrix * uTransformMatrix * vec3(position, 1.0)).y;
 }`;
 const fragment = `
 in vec4 vColor;
@@ -41,7 +56,7 @@ void main() {
 
 function makeShader(fade: number[]) {
   return new Shader({ glProgram: GlProgram.from({ vertex, fragment, name: 'forest-vector' }),
-    resources: { forest: { uFade: { value: new Float32Array(fade), type: 'vec4<f32>' }, uHeight: { value: 900, type: 'f32' }, uViewY: { value: 0, type: 'f32' } } } });
+    resources: { forest: { uFade: { value: new Float32Array(fade), type: 'vec4<f32>' }, uHeight: { value: 900, type: 'f32' }, uViewY: { value: 0, type: 'f32' }, uTime: { value: 0, type: 'f32' } } } });
 }
 
 /** Front-to-back coverage gives an isolated opaque layer a single alpha/fade
@@ -81,7 +96,7 @@ export type View = { offset: number; size?: [number, number, number, boolean] };
  * when upgrading Pixi. Temporary paths and its CPU batch data are destroyed.
  */
 function compile(renderer: WebGLRenderer, nodes: SVGElement[], shader: Shader, reverse: boolean): Batch[] {
-  const positions: number[] = [], indices: number[] = [], paints: Paint[] = [];
+  const positions: number[] = [], sways: number[] = [], indices: number[] = [], paints: Paint[] = [];
   let minX = Infinity, maxX = -Infinity;
   function visit(node: SVGElement, alpha: number) {
     const style = getComputedStyle(node);
@@ -97,6 +112,9 @@ function compile(renderer: WebGLRenderer, nodes: SVGElement[], shader: Shader, r
     // All compound leaves/branches wind alike. Pixi's optional containment-hole
     // heuristic would incorrectly turn contained leaves into holes.
     path.checkForHoles = false;
+    const plant = node.closest('[data-sway]') as SVGElement | null;
+    const [baseX, baseY, height] = plant ? plant.dataset.sway!.split(' ').map(Number) : [0, 0, 0];
+    const phase = (baseX * 12.9898) % 6.283;
     for (const kind of ['fill', 'stroke'] as const) {
       if (style[kind] === 'none') continue;
       const context = new GraphicsContext();
@@ -110,6 +128,7 @@ function compile(renderer: WebGLRenderer, nodes: SVGElement[], shader: Shader, r
       for (let i = 0; i < data.vertices.length; i += 2) {
         const x = data.vertices[i];
         positions.push(x, data.vertices[i + 1]);
+        sways.push(baseX, baseY, height, phase);
         minX = Math.min(minX, x); maxX = Math.max(maxX, x);
       }
       for (const index of data.indices) indices.push(start + index);
@@ -133,6 +152,7 @@ function compile(renderer: WebGLRenderer, nodes: SVGElement[], shader: Shader, r
   const attributes = {
     aPosition: { buffer: positionBuffer, format: 'float32x2' as const },
     aColor: { buffer: colorBuffer, format: 'unorm8x4' as const },
+    aSway: { buffer: new Buffer({ data: new Float32Array(sways), usage: BufferUsage.VERTEX }), format: 'float32x4' as const },
   };
   const bins = new Map<number, number[]>();
   const split = maxX - minX > 700;
@@ -346,7 +366,7 @@ export class WebGLForest {
 
   private addMist() {
     const shader = new Shader({
-      glProgram: GlProgram.from({ vertex: vertex.replace('in vec4 aColor;', '').replace('out vec4 vColor;', 'out vec2 vPosition;').replace('vColor = aColor;', 'vPosition = aPosition;'),
+      glProgram: GlProgram.from({ vertex: vertex.replace('in vec4 aSway;', 'const vec4 aSway = vec4(0.0);').replace('in vec4 aColor;', '').replace('out vec4 vColor;', 'out vec2 vPosition;').replace('vColor = aColor;', 'vPosition = aPosition;'),
         fragment: `in vec2 vPosition; uniform vec4 uMist; out vec4 finalColor;
         void main() {
           float r = length((vPosition - vec2(.5,.55)) / vec2(.70710678,.77781746));
@@ -424,7 +444,6 @@ export class WebGLForest {
     const vv = window.visualViewport;
     const key = `${this.offset} ${this.width} ${this.height} ${devicePixelRatio} ${vv?.scale} ${vv?.offsetLeft} ${vv?.offsetTop} ${vv?.width} ${vv?.height}`;
     const now = performance.now();
-    if (key === this.lastView && now - this.lastRender < 30) { this.requestFrame(); return; }
     this.lastView = key; this.lastRender = now;
     // Render only the visible part of a pinched viewport at native pixel density.
     // Cropping keeps the backing store bounded instead of scaling its area by zoom².
@@ -446,12 +465,13 @@ export class WebGLForest {
     // A fast scroll can outrun the background slices: never show a gap.
     if (this.pending.length) this.compilePending(this.pending.filter(slot => this.distance(slot, this.offset, this.width, this.height, this.unit) === 0));
     const flies = this.flies?.update(this.offset, viewX, viewY, viewWidth, viewHeight, resolution,
-      !this.reduced && document.documentElement.dataset.theme !== 'light');
+      false);
     let calls = (this.mist?.visible ? 1 : 0) + (flies?.count || 0), triangles = calls * 2;
     for (const layer of this.layers) {
       layer.container.visible = !this.reduced || !layer.source.matches('.feature-trees, .foreground');
       layer.container.x = layer.width * (this.unit - scale) / 2 - this.offset * layer.speed;
       layer.shader.resources.forest.uniforms.uViewY = viewY;
+      layer.shader.resources.forest.uniforms.uTime = this.reduced ? 0 : now / 1000;
       const left = (viewX - layer.container.x) / scale, right = left + viewWidth / scale;
       for (const batch of layer.batches) {
         batch.view.visible = batch.maxX >= left && batch.minX <= right;
@@ -468,10 +488,8 @@ export class WebGLForest {
       canvasMb: (this.canvas.width * this.canvas.height * 4 / 1024 ** 2).toFixed(2),
     });
     if (!this.landscape.dataset.firstFrameMs) this.landscape.dataset.firstFrameMs = performance.now().toFixed(1);
-    if (flies?.animated && !document.hidden) {
-      // Use the same queue as scrolling: one render per animation frame.
-      this.requestFrame();
-    }
+    // The wind never stops: draw every frame while the page is visible.
+    if (!this.reduced && !document.hidden) this.requestFrame();
   }
 
   private contextLost = (event: Event) => {

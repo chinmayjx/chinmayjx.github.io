@@ -42,50 +42,66 @@
     <main id="walk" aria-label="A walk through the forest">
       <div class="stage">
         <div id="landscape" aria-hidden="true"></div>
-        <header class="intro">
-          <svg class="sprig" viewBox="0 0 32 44" fill="none" aria-hidden="true"><path d="M13 41Q17 23 19 4M17 23Q3 24 6 12Q16 13 17 23ZM18 16Q30 16 28 5Q20 6 18 16ZM14 34Q3 34 4 25Q13 26 14 34Z" stroke="currentColor" stroke-width=".85"/></svg>
-          <h1>Chinmay Jain</h1>
-          <p class="lede">You’ve reached the edge of the woods.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
-          <ul class="links" aria-label="Elsewhere">
-            <li><a href="#" data-placeholder>LinkedIn</a></li>
-            <li><a href="#" data-placeholder>X</a></li>
-            <li><a href="https://github.com/chinmayjx">GitHub</a></li>
-            <li><a href="#" data-placeholder>Email</a></li>
-          </ul>
-          <button class="take-walk" type="button"><span aria-hidden="true">→</span> take the walk</button>
-        </header>
-        <nav class="signpost" aria-label="Where to go">
-          <svg class="post" viewBox="0 0 16 100" preserveAspectRatio="none" aria-hidden="true"><path class="post-wood" d="M1.5 1.6 8 0l6.5 1.6L15 100H1z"/><path class="post-lit" d="M10.5.6 14.5 1.6 15 100h-4z"/><path class="post-shade" d="M1.5 1.6 4 1v99H1z"/></svg>
-          <div class="signpost-plates">
-            <ul class="plates into" aria-label="Notes">
-            <li><a class="plate" href="https://chinmayjain.me/notes/Mind/"><span>Mind</span></a></li>
-            <li><a class="plate" href="https://chinmayjain.me/notes/Philosophy/"><span>Philosophy</span></a></li>
-            <li><a class="plate" href="https://chinmayjain.me/notes/AI-and-Work/"><span>AI and Work</span></a></li>
-            <li><a class="plate" href="https://chinmayjain.me/notes/"><span>All notes</span></a></li>
-          </ul>
-            <ul class="plates out" aria-label="Work">
-            <li><a class="plate" href="#" data-placeholder><span>Work</span></a></li>
-            <li><a class="plate" href="#" data-placeholder><span>Resume</span></a></li>
-          </ul>
-          </div>
-        </nav>
-        <div id="waypoints" class="world-layer" data-speed="1">
-          <nav id="clearing" class="clearing" data-world-x="4140" aria-label="In the clearing">
-            <svg class="sprig" viewBox="0 0 32 44" fill="none" aria-hidden="true"><path d="M13 41Q17 23 19 4M17 23Q3 24 6 12Q16 13 17 23ZM18 16Q30 16 28 5Q20 6 18 16ZM14 34Q3 34 4 25Q13 26 14 34Z" stroke="currentColor" stroke-width=".85"/></svg>
-            <p class="clearing-caption">a clearing</p>
-            <ul class="socials" aria-label="Elsewhere">
-              <li><a href="#" data-placeholder aria-label="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9h3v10.5h-3zM6 3.8a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6zM10 9h2.9v1.5c.5-.9 1.7-1.8 3.4-1.8 3.2 0 3.8 2 3.8 4.7v6.1h-3v-5.4c0-1.3 0-2.9-1.8-2.9s-2.2 1.4-2.2 2.8v5.5h-3z"/></svg></a></li>
-              <li><a href="#" data-placeholder aria-label="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 3.5h3l-6.6 7.5 7.8 9.5h-6.1l-4.8-6-5.4 6h-3l7-8L3 3.5h6.2l4.3 5.5zm-1 15.2h1.7L8 5.2H6.2z"/></svg></a></li>
-              <li><a href="https://github.com/chinmayjx" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8a9.4 9.4 0 0 0-3 18.3c.5.1.6-.2.6-.5v-1.7c-2.6.6-3.2-1.2-3.2-1.2-.4-1.1-1-1.4-1-1.4-.9-.6 0-.6 0-.6.9.1 1.4 1 1.4 1 .8 1.4 2.2 1 2.7.8.1-.6.3-1 .6-1.2-2.1-.2-4.3-1-4.3-4.6 0-1 .4-1.9 1-2.5-.1-.3-.4-1.2.1-2.5 0 0 .8-.3 2.6 1a9 9 0 0 1 4.7 0c1.8-1.3 2.6-1 2.6-1 .5 1.3.2 2.2.1 2.5.6.7 1 1.5 1 2.5 0 3.6-2.2 4.4-4.3 4.6.3.3.6.9.6 1.7v2.6c0 .3.2.6.6.5A9.4 9.4 0 0 0 12 2.8z"/></svg></a></li>
-              <li><a href="#" data-placeholder aria-label="Email"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6h17v12h-17zm1.8 1.5L12 12.6l6.7-5.1zM5 9.2V16.5h14V9.2l-7 5.3z"/></svg></a></li>
-            </ul>
-            <button class="return-link" type="button"><span aria-hidden="true">←</span> back to the entrance</button>
-          </nav>
-        </div>
+        <div id="waypoints" class="world-layer" data-speed="1"></div>
         <div class="grain" aria-hidden="true"></div>
         <p class="walk-hint"><span class="hint-line" aria-hidden="true"></span>scroll to walk<span aria-hidden="true">↓</span></p>
         <div class="journey" aria-hidden="true"><span class="journey-track"></span><span class="journey-progress"></span></div>
+      </div>
+      <div class="column">
+        <article class="page">
+          <header class="intro">
+            <svg class="sprig" viewBox="0 0 32 44" fill="none" aria-hidden="true"><path d="M13 41Q17 23 19 4M17 23Q3 24 6 12Q16 13 17 23ZM18 16Q30 16 28 5Q20 6 18 16ZM14 34Q3 34 4 25Q13 26 14 34Z" stroke="currentColor" stroke-width=".85"/></svg>
+            <h1>Chinmay Jain</h1>
+            <p class="lede">You’ve reached the edge of the woods.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
+          </header>
+          <section class="links-block" aria-label="Elsewhere">
+            <ul class="links" aria-label="Work">
+              <li><a href="#" data-placeholder>Work</a></li>
+              <li><a href="#" data-placeholder>Resume</a></li>
+            </ul>
+            <ul class="links more" aria-label="Elsewhere">
+              <li><a href="#" data-placeholder>LinkedIn</a></li>
+              <li><a href="#" data-placeholder>X</a></li>
+              <li><a href="https://github.com/chinmayjx">GitHub</a></li>
+              <li><a href="#" data-placeholder>Email</a></li>
+            </ul>
+          </section>
+          <section class="notes" aria-labelledby="notes-title">
+            <h2 id="notes-title">Notes</h2>
+            <p class="lede">Longer pieces I’m working on, published as they evolve.</p>
+            <ul class="contents">
+              <li>
+                <h3><a href="https://chinmayjain.me/notes/Mind/">Mind</a></h3>
+                <ul>
+                  <li><a href="https://chinmayjain.me/notes/Mind/The-War-Between-You-and-Your-Mind">The War Between You and Your Mind</a></li>
+                  <li><a href="https://chinmayjain.me/notes/Mind/What-Is-Ego">What Is Ego?</a></li>
+                </ul>
+              </li>
+              <li>
+                <h3><a href="https://chinmayjain.me/notes/Philosophy/">Philosophy</a></h3>
+                <ul>
+                  <li><a href="https://chinmayjain.me/notes/Philosophy/Microframeworks">Microframeworks</a></li>
+                  <li><a href="https://chinmayjain.me/notes/Philosophy/What-Is-Information">What Is Information?</a></li>
+                </ul>
+              </li>
+              <li>
+                <h3><a href="https://chinmayjain.me/notes/AI-and-Work/">AI and Work</a></h3>
+                <ul>
+                  <li><a href="https://chinmayjain.me/notes/AI-and-Work/Why-the-Age-of-Abundance-Won't-Feel-Like-One">Why the Age of Abundance Won’t Feel Like One</a></li>
+                  <li><a href="https://chinmayjain.me/notes/AI-and-Work/Where-the-Work-Goes">Where the Work Goes</a></li>
+                </ul>
+              </li>
+            </ul>
+            <a class="take-walk all-notes" href="https://chinmayjain.me/notes/"><span aria-hidden="true">→</span> all notes</a>
+          </section>
+          <footer class="end">
+            <svg class="sprig" viewBox="0 0 32 44" fill="none" aria-hidden="true"><path d="M13 41Q17 23 19 4M17 23Q3 24 6 12Q16 13 17 23ZM18 16Q30 16 28 5Q20 6 18 16ZM14 34Q3 34 4 25Q13 26 14 34Z" stroke="currentColor" stroke-width=".85"/></svg>
+            <h2>A clearing ahead</h2>
+            <p>Thanks for walking with me.</p>
+            <button class="return-link" type="button"><span aria-hidden="true">↑</span> back to the top</button>
+          </footer>
+        </article>
       </div>
     </main>
     <script type="module" src="/src/main.ts"></script>

@@ -2,6 +2,7 @@ import './style.css';
 import { drawForest } from './forest';
 import { ForestEngine } from './forest-engine';
 import { startFpsOverlay } from './fps';
+import { startRain } from './rain';
 
 const landscape = document.querySelector<HTMLDivElement>('#landscape')!;
 landscape.innerHTML = drawForest();
@@ -9,7 +10,7 @@ const forest = new ForestEngine(landscape, queueRender);
 
 // The loading veil (index.html) lifts once the first forest frame is drawn, or after
 // a few seconds whatever happens, so a slow or failing renderer never hides the page.
-// It also waits for the fonts, so the signposts don't change typeface in view.
+// It also waits for the fonts, so the text doesn't change typeface in view.
 function lift() { document.documentElement.classList.add('forest-ready'); }
 const drawn = new Promise<void>(resolve => new MutationObserver((_, observer) => {
   if (landscape.dataset.forestReady === 'true') { observer.disconnect(); resolve(); }
@@ -41,8 +42,7 @@ noise.width = noise.height = 0;
 
 const walk = document.querySelector<HTMLElement>('#walk')!;
 const stage = document.querySelector<HTMLElement>('.stage')!;
-const intro = document.querySelector<HTMLElement>('.intro')!;
-const guidepost = document.querySelector<HTMLElement>('.signpost')!;
+const column = document.querySelector<HTMLElement>('.column')!;
 const hint = document.querySelector<HTMLElement>('.walk-hint')!;
 const progressBar = document.querySelector<HTMLElement>('.journey-progress')!;
 const waypoints = document.querySelector<HTMLElement>('#waypoints')!;
@@ -61,19 +61,14 @@ let previousWidth = 0;
 let previousHeight = 0;
 let previousDpr = 0;
 let previousZoom = 0;
+let previousContent = 0;
 
 function render() {
   frame = 0;
   if (reducedMotion.matches) { forest.render(0); return; }
   const progress = Math.max(0, Math.min(1, window.scrollY / scrollRange));
-  const offset = progress * travel;
-  forest.render(offset);
-  for (const { element, speed } of layers) {
-    element.style.transform = `translate3d(${-offset * speed}px,0,0)`;
-  }
-  guidepost.style.transform = `translate3d(${-offset}px,0,0)`;
-  intro.style.transform = `translate3d(${-offset * .4}px,0,0)`;
-  intro.style.opacity = `${Math.max(0, 1 - offset / (viewportWidth * .45))}`;
+  // The forest stands still behind the page; only the wind and the rain move.
+  forest.render(0);
   hint.style.opacity = `${Math.max(0, 1 - progress * 20)}`;
   progressBar.style.transform = `scaleX(${progress})`;
   // A link reached with Tab is brought into view by the focus handler below.
@@ -87,7 +82,9 @@ function queueRender() {
 function measure() {
   const height = stage.clientHeight;
   const width = stage.clientWidth;
-  if (height === previousHeight && width === previousWidth && previousDpr === devicePixelRatio && previousZoom === (visualViewport?.scale || 1)) return;
+  const contentHeight = column.offsetHeight;
+  if (height === previousHeight && width === previousWidth && contentHeight === previousContent && previousDpr === devicePixelRatio && previousZoom === (visualViewport?.scale || 1)) return;
+  previousContent = contentHeight;
   previousHeight = height;
   previousWidth = width;
   previousDpr = devicePixelRatio;
@@ -96,9 +93,9 @@ function measure() {
   viewportWidth = width;
   document.documentElement.style.setProperty('--unit', `${scale}px`);
   travel = CLEARING_X * scale - width / 2;
-  // One pixel of ordinary vertical scroll covers about one pixel of the path.
-  scrollRange = Math.max(2400, travel * 1.25);
-  walk.style.height = reducedMotion.matches ? '' : `${height + scrollRange}px`;
+  // The page is one long card over the forest: reading to its end walks you to the clearing.
+  scrollRange = Math.max(1, contentHeight - height);
+  walk.style.height = reducedMotion.matches ? '' : `${contentHeight}px`;
   layers.forEach(({ element }) => {
     if (element.dataset.width) element.style.width = `${Number(element.dataset.width) * scale}px`;
   });
@@ -114,12 +111,10 @@ function motionPreferenceChanged() {
   previousHeight = 0;
   if (reducedMotion.matches) {
     layers.forEach(({ element }) => { element.style.transform = ''; });
-    guidepost.style.transform = '';
-    intro.style.transform = '';
-    intro.style.opacity = '';
     hint.style.opacity = '';
   }
   measure();
+startRain(stage, () => (stage.clientHeight - 900 * scale) / 2 + 790 * scale);
 }
 
 window.addEventListener('scroll', queueRender, { passive: true });
@@ -133,6 +128,7 @@ function watchDensity() {
 }
 watchDensity();
 new ResizeObserver(measure).observe(stage);
+new ResizeObserver(measure).observe(column);
 if (new URLSearchParams(location.search).has('fps')) startFpsOverlay(landscape);
 reducedMotion.addEventListener('change', motionPreferenceChanged);
 // Day / night: the toggle's choice is remembered; until then the page follows the system.
@@ -166,16 +162,11 @@ stops.forEach(stop => {
   stop.addEventListener('focusin', () => goToStop(stop));
 });
 document.querySelector<HTMLButtonElement>('.return-link')!.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  guidepost.querySelector<HTMLAnchorElement>('a')!.focus({ preventScroll: true });
-});
-// The intro's last line leads into the walk: a few steps in, to the signpost.
-document.querySelector<HTMLButtonElement>('.take-walk')!.addEventListener('click', () => {
-  if (reducedMotion.matches) { guidepost.scrollIntoView({ behavior: 'smooth' }); return; }
-  window.scrollTo({ top: Math.min(1, viewportWidth / travel) * scrollRange, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 // Work and Resume are deliberately local placeholders in this visual study.
 document.querySelectorAll<HTMLAnchorElement>('[data-placeholder]').forEach(link => {
   link.addEventListener('click', event => event.preventDefault());
 });
 measure();
+startRain(stage, () => (stage.clientHeight - 900 * scale) / 2 + 790 * scale);

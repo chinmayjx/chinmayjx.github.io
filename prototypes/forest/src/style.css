@@ -178,6 +178,7 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 [data-theme='light'] .walk-hint { color: #c4cbb0; }
 [data-theme='light'] .journey { --quiet: #c4cbb0; }
 @media (prefers-reduced-motion: reduce) {
+  .column { position: relative; }
   #walk { height: auto !important; min-height: 100svh; }
   .stage { height: auto; min-height: 100svh; position: relative; overflow: clip; padding: 70px 24px 80px; }
   #landscape { position: fixed; height: 100svh; opacity: .5; }
@@ -203,41 +204,32 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 [data-theme='light'] .theme-toggle .sun { display: block; }
 .fps-overlay { position: fixed; z-index: 40; left: 10px; bottom: 10px; margin: 0; padding: 8px 10px; border-radius: 8px; background: #000b; color: #cfe8d0; font: 11px/1.45 ui-monospace, Menlo, monospace; pointer-events: auto; }
 
-/* Screen 1: a page of my writing laid over the forest. Solid, hard-edged and small, in
-   the notes' book type, so it contrasts with the painting instead of imitating it. The one
-   accent comes from the forest: firefly yellow at night, sunlight amber by day. */
-.intro { --panel: #0a1b1ef2; --accent: #d9df9e; position: absolute; z-index: 4; left: 24px; right: 24px; top: 50%; translate: 0 -50%; padding: 26px 26px 20px; background: var(--panel); border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); border-radius: 2px; will-change: transform, opacity; }
-[data-theme='light'] .intro { --panel: #f4f2e9f4; --accent: #93641c; }
-.intro .sprig { display: block; width: 19px; height: 27px; margin: 0 0 16px -1px; color: var(--quiet); }
-.intro h1 { margin: 0; font-size: 16px; font-weight: 500; letter-spacing: .03em; }
-.intro p { margin: 14px 0 0; font-size: 15px; line-height: 1.72; color: color-mix(in srgb, var(--ink) 76%, transparent); }
-.intro .lede { margin-top: 6px; font-style: italic; color: var(--ink); }
-.links { display: flex; flex-wrap: wrap; list-style: none; margin: 22px 0 0; padding: 14px 0 0; border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); }
+/* One long page of my writing over the forest. It scrolls like any page; behind it the
+   forest walks past, and the end of the page is the clearing. Solid, hard-edged and small,
+   in the notes' book type, so it contrasts with the painting instead of imitating it. The
+   one accent comes from the forest: firefly yellow at night, sunlight amber by day. */
+.column { position: absolute; z-index: 5; top: 0; left: 20px; right: 20px; padding: 30svh 0 55svh; }
+.page { --panel: #0a1b1ef2; --accent: #d9df9e; --rule: color-mix(in srgb, var(--ink) 12%, transparent); padding: 0 26px; background: var(--panel); border: 1px solid var(--rule); border-radius: 2px; }
+[data-theme='light'] .page { --panel: #f4f2e9f4; --accent: #93641c; }
+.page > * { padding: 26px 0; }
+.page > * + * { border-top: 1px solid var(--rule); }
+.page .sprig { display: block; width: 19px; height: 27px; margin: 0 0 16px -1px; color: var(--quiet); }
+.page h1, .page h2 { margin: 0; font-size: 16px; font-weight: 500; letter-spacing: .03em; }
+.page p { margin: 14px 0 0; font-size: 15px; line-height: 1.72; color: color-mix(in srgb, var(--ink) 76%, transparent); }
+.page .lede { margin-top: 6px; font-style: italic; color: var(--ink); }
+.page ul { list-style: none; margin: 0; padding: 0; }
+.links { display: flex; flex-wrap: wrap; }
 .links li + li::before { content: '·'; padding: 0 9px; color: var(--quiet); opacity: .6; }
-.links a, .take-walk { font-size: 15px; color: var(--accent); }
-.links a { padding: 6px 0; }
-.links a:hover, .take-walk:hover { text-decoration: underline; text-underline-offset: 4px; }
-.take-walk { display: inline-flex; gap: 9px; margin: 8px 0 0; padding: 6px 0; border: 0; background: none; cursor: pointer; font-style: italic; }
-.signpost { --plate-h: 38px; position: absolute; z-index: 5; left: calc(100% + 44%); width: 0; top: 37%; bottom: calc(100% - 786 * var(--unit)); will-change: transform; }
-.signpost ul { list-style: none; margin: 0; padding: 0; }
-.post { position: absolute; left: -8px; width: 16px; top: -12px; height: calc(100% + 12px); overflow: visible; }
-.post-wood { fill: var(--wood-sign); }
-.post-lit { fill: var(--post-lit); }
-.post-shade { fill: var(--wood-sign-edge); }
-.signpost-plates { position: absolute; top: 4px; left: 0; width: 0; display: flex; flex-direction: column; gap: 15px; }
-.plates { display: flex; flex-direction: column; gap: 7px; }
-.plates li { display: flex; }
-.plates.into { margin-left: 6px; align-items: flex-start; }
-.plates.out { margin-right: 6px; align-items: flex-end; }
-.plate { position: relative; display: flex; align-items: center; height: var(--plate-h); padding: 0 26px 2px 15px; color: var(--sign-text); background: var(--wood-sign); white-space: nowrap; clip-path: polygon(0 7%, 86% 0, 100% 50%, 86% 100%, 0 93%); box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--wood-sign-edge) 45%, transparent), inset 0 2px 0 color-mix(in srgb, var(--post-lit) 70%, transparent); transition: filter .2s, translate .2s; -webkit-tap-highlight-color: transparent; }
-.plate::after { content: ''; position: absolute; left: 7px; top: 47%; width: 3px; height: 3px; border-radius: 50%; background: var(--wood-sign-edge); }
-.plate span { position: relative; font-family: 'Caveat', Georgia, cursive; font-size: 25px; }
-.plates.out .plate { padding: 0 15px 2px 26px; clip-path: polygon(14% 0, 100% 7%, 100% 93%, 14% 100%, 0 50%); }
-.plates.out .plate::after { left: auto; right: 7px; }
-.plates li:nth-child(odd) .plate { transform: rotate(-1deg); }
-.plates li:nth-child(even) .plate { transform: rotate(.8deg); }
-.plate:hover { filter: brightness(1.13); translate: 3px 0; }
-.plates.out .plate:hover { translate: -3px 0; }
+.links a, .take-walk, .return-link { font-size: 15px; color: var(--accent); }
+.links a { padding: 5px 0; display: inline-block; }
+.page a:hover, .page button:hover { text-decoration: underline; text-underline-offset: 4px; }
+.take-walk, .page .return-link { display: inline-flex; gap: 9px; margin: 14px 0 0; padding: 6px 0; border: 0; background: none; cursor: pointer; font-style: italic; opacity: 1; letter-spacing: 0; }
+.contents { display: grid; gap: 16px; margin-top: 20px !important; }
+.contents h3 { margin: 0; font-size: 15px; font-weight: 500; }
+.contents h3 a { color: var(--accent); }
+.contents ul { margin-top: 3px !important; }
+.contents ul a { display: block; padding: 3px 0; font-size: 14.5px; line-height: 1.5; color: color-mix(in srgb, var(--ink) 76%, transparent); }
+.end .sprig { margin-bottom: 14px; }
 .walk-hint { font-size: 11px; }
 #waypoints .clearing { top: 40%; }
 /* Where to find me: a quiet row of icons at the foot of the intro card, and again in the clearing. */
@@ -247,12 +239,9 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .socials svg { width: 18px; height: 18px; fill: currentColor; }
 .clearing .socials { margin: 16px 0 0; justify-content: center; }
 @media (min-width: 900px) {
-  /* Laptop: both screens fit side by side, the text on the left and the posts beside it. */
-  .intro { left: 11%; right: auto; width: 400px; padding: 30px 30px 22px; }
-  .signpost { --plate-h: 44px; left: 56%; top: 31%; }
-  .plates { gap: 9px; }
-  .signpost-plates { gap: 18px; }
-  .plate span { font-size: 29px; }
+  /* Laptop: a reading column on the left; the forest walks past on the right. */
+  .column { left: max(24px, 9%); right: auto; width: 420px; padding-top: 24svh; }
+  .page { padding: 0 32px; }
 }
 /* The sprig from the loading veil crowns the name, and ends the walk in the clearing. */
 #waypoints .clearing { display: flex; flex-direction: column; align-items: center; width: 260px; }
@@ -261,3 +250,6 @@ html[data-theme='light'] { scrollbar-color: #879a7d #dce3d4; }
 .clearing .return-link { display: inline-flex; align-items: center; gap: 8px; margin: 22px 0 0; padding: 8px 16px; font-size: 13px; letter-spacing: .03em; color: var(--ink); opacity: .8; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent); background: color-mix(in srgb, var(--sky-top) 55%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 .clearing .return-link span { padding: 0; }
 .clearing .return-link:hover { opacity: 1; }
+/* Night rain over the forest, under the page. */
+.rain { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; transition: opacity .6s; }
+.walk-hint, .journey { display: none; }
